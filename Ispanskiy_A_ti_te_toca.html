@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¡A ti te toca!</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Nunito:wght@400;600;800&display=swap">
+<style>
+/* Layout: azulejo-tiled header band, four lesson tabs, then one lesson at a time as a column of cards (rule → words → exercises). */
+:root{
+  --bg:#F3F7FC; --card:#FFFFFF; --ink:#14264A; --muted:#58698A; --line:#D6E0EE;
+  --tile:#1F4FA3; --tile-soft:#E3ECFA; --sun:#E9A100; --sun-soft:#FFF3D1;
+  --ok:#1C7F52; --ok-soft:#DDF3E8; --bad:#8E6A48; --bad-soft:#F3E8DA;
+  --f-display:"Unbounded","Arial Rounded MT Bold",system-ui,sans-serif;
+  --f-body:"Nunito","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1524; --card:#152038; --ink:#E7EDF8; --muted:#97A7C6; --line:#2A3858;
+  --tile:#79A3F2; --tile-soft:#1C2C4D; --sun:#F4B930; --sun-soft:#3A2F12;
+  --ok:#52C892; --ok-soft:#163A2B; --bad:#D2AE88; --bad-soft:#382B1F; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1524; --card:#152038; --ink:#E7EDF8; --muted:#97A7C6; --line:#2A3858;
+  --tile:#79A3F2; --tile-soft:#1C2C4D; --sun:#F4B930; --sun-soft:#3A2F12;
+  --ok:#52C892; --ok-soft:#163A2B; --bad:#D2AE88; --bad-soft:#382B1F; color-scheme:dark}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.2}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+
+.band{background:
+  radial-gradient(circle at 50% 50%,var(--sun) 0 9%,transparent 10%),
+  conic-gradient(from 45deg,var(--tile) 0 25%,var(--tile-soft) 0 50%,var(--tile) 0 75%,var(--tile-soft) 0) ;
+  background-size:36px 36px;height:22px}
+header{padding-block:22px 8px}
+header h1{font-size:clamp(26px,6vw,40px);font-weight:700}
+header h1 span{color:var(--tile)}
+header p{margin:6px 0 0;color:var(--muted);max-width:60ch}
+
+.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding-block:16px}
+@media (max-width:760px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.tab:last-child{grid-column:span 2}}
+.tab{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tab small{color:var(--muted);font-weight:600;font-size:13px}
+.tab b{font-family:var(--f-display);font-weight:500;font-size:15px;line-height:1.25}
+.tab .st{font-size:13px;color:var(--sun);font-weight:800;font-variant-numeric:tabular-nums}
+.tab[aria-selected="true"]{border-color:var(--tile);background:var(--tile-soft)}
+
+.lesson-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px;padding-block:8px 4px}
+.lesson-head h2{font-size:clamp(22px,4.5vw,30px)}
+.pages{font-size:14px;color:var(--muted);font-weight:600}
+.meter{height:10px;border-radius:99px;background:var(--line);overflow:hidden;margin-block:8px 18px}
+.meter i{display:block;height:100%;background:var(--sun);transition:width .4s}
+
+.sec-title{font-family:var(--f-display);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tile);margin:26px 0 10px;font-weight:500}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.rules .card{margin:0;min-width:0;overflow-x:auto}
+.rules h3{font-size:16px;font-weight:500;margin-bottom:8px}
+.rules p{margin:6px 0}
+.rules table{border-collapse:collapse;width:100%;font-size:15px}
+.rules td,.rules th{padding:4px 5px;overflow-wrap:anywhere;border-bottom:1px solid var(--line);text-align:left}
+.rules th{color:var(--muted);font-weight:600;font-size:13px}
+.rules .note{background:var(--sun-soft);border-radius:10px;padding:8px 10px;font-size:15px}
+em.es{font-style:normal;font-weight:800;color:var(--tile)}
+
+.words{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.flash{position:relative;background:var(--card);border:2px solid var(--line);border-radius:14px;min-height:92px;padding:12px 40px 12px 12px;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px}
+.flash .es{font-weight:800;font-size:17px}
+.flash .ru{color:var(--muted);font-size:15px;visibility:hidden}
+.flash.open{border-color:var(--sun)}
+.flash.open .ru{visibility:visible}
+.say{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:none;background:var(--tile-soft);color:var(--tile);display:grid;place-items:center}
+.say svg{width:16px;height:16px}
+.say.inline{position:static;display:inline-grid;vertical-align:middle;margin-left:8px;flex:none}
+.hint-line{color:var(--muted);font-size:14px;margin:0 0 10px}
+
+.ex{position:relative}
+.ex-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px}
+.ex h3{font-size:17px;font-weight:500}
+.ex .instr{color:var(--muted);margin:0 0 12px;font-size:15px}
+.star{font-size:24px;line-height:1;color:var(--line);transition:transform .3s,color .3s;flex:none}
+.ex.done .star{color:var(--sun);transform:scale(1.2)}
+.ex.done{border-color:var(--sun)}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-block:8px;border-top:1px dashed var(--line)}
+.row:first-of-type{border-top:none}
+.q{flex:1 1 240px;min-width:0}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:6px 12px;font-weight:700}
+.opt:hover{border-color:var(--tile)}
+.opt.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.opt.bad{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);animation:shake .3s}
+.fb{flex-basis:100%;font-size:14px;color:var(--muted)}
+.fb.ok{color:var(--ok)} .fb.bad{color:var(--bad)}
+input.blank{font:inherit;font-weight:800;width:8.5em;max-width:100%;border:none;border-bottom:2px solid var(--tile);background:var(--tile-soft);border-radius:6px 6px 0 0;padding:2px 6px;color:var(--ink);text-align:center}
+input.blank.short{width:2.2em}
+input.blank.ok{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+input.blank.bad{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.hint{color:var(--muted);font-size:14px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn{border:none;border-radius:12px;padding:9px 16px;font-weight:800;background:var(--tile);color:var(--card)}
+.btn.ghost{background:transparent;color:var(--tile);border:2px solid var(--tile)}
+
+.match{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
+.match .col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.chip{border:2px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 10px;font-weight:700;text-align:left;min-height:44px}
+.chip.sel{border-color:var(--sun);background:var(--sun-soft)}
+.chip.ok{border-color:var(--ok);background:var(--ok-soft);color:var(--ok);cursor:default}
+.chip.bad{border-color:var(--bad);background:var(--bad-soft);animation:shake .3s}
+
+.order .ru{color:var(--muted);font-size:15px;margin-bottom:6px}
+.line{min-height:48px;border:2px dashed var(--line);border-radius:12px;padding:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.line.ok{border-style:solid;border-color:var(--ok);background:var(--ok-soft)}
+.line.bad{border-color:var(--bad);animation:shake .3s}
+.pool{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tok{border:2px solid var(--line);background:var(--card);border-radius:9px;padding:5px 10px;font-weight:800}
+.tok.sy{background:var(--sun-soft);border-color:var(--sun)}
+.tok{touch-action:none;user-select:none;-webkit-user-select:none}
+.tok.dragging{opacity:.3}
+.drag-ghost{position:fixed;z-index:50;pointer-events:none;transform:translate(-50%,-60%) rotate(-3deg);box-shadow:0 6px 16px rgba(0,0,0,.25)}
+.story{background:var(--tile-soft);border-color:var(--tile)}
+.story h3{font-size:18px;font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.player{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.player .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px}
+.player .btn svg{width:14px;height:14px}
+.story .snt{border-radius:4px;transition:background .2s}
+.story .snt.cur{background:var(--sun-soft);box-shadow:0 0 0 2px var(--sun-soft)}
+.story p{margin:0 0 10px;max-width:65ch}
+.story .gloss{font-size:14px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;margin:0}
+.ru-q{flex:1 1 100%;font-weight:700}
+input.blank.wide{width:100%;text-align:left}
+.order-item{padding-block:10px;border-top:1px dashed var(--line)}
+.order-item:first-of-type{border-top:none}
+
+textarea{font:inherit;width:100%;box-sizing:border-box;min-height:150px;border:2px solid var(--line);border-radius:12px;padding:10px;background:var(--bg);color:var(--ink)}
+.starters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.starters button{border:1px solid var(--line);background:var(--tile-soft);border-radius:99px;padding:4px 10px;font-size:14px;font-weight:700;color:var(--tile)}
+
+.voicebar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px;font-size:15px;font-weight:600}
+.voicebar select{font:inherit;max-width:100%;min-width:0;padding:6px 8px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.voicebar .btn{padding:6px 12px}
+.done-banner{background:var(--sun-soft);border:2px solid var(--sun);border-radius:16px;padding:16px 18px;margin-block:10px 30px;font-weight:700}
+footer{color:var(--muted);font-size:13px;padding-block:20px 40px;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between}
+footer button{background:none;border:none;color:var(--muted);text-decoration:underline}
+.totop{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;width:52px;height:52px;border-radius:50%;border:none;background:var(--tile);color:var(--card);display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:opacity .2s,transform .2s}
+.totop svg{width:24px;height:24px}
+.totop.off{opacity:0;transform:translateY(12px);pointer-events:none}
+.phrases{margin:0;padding-left:1.6em;display:flex;flex-direction:column;gap:8px}
+.phrases li{cursor:pointer;padding:6px 8px;border-radius:10px;background:var(--card);border:1px solid var(--line)}
+.phrases li .es{font-weight:800}
+.phrases li .ru{display:block;color:var(--muted);font-size:15px;visibility:hidden;height:0}
+.phrases li.open .ru{visibility:visible;height:auto}
+.phrases li .say.inline{float:right;margin-left:8px}
+.jump{display:flex;flex-wrap:wrap;gap:6px;margin:-6px 0 8px}
+.jb{min-width:36px;height:34px;padding:0 10px;border-radius:10px;border:2px solid var(--line);background:var(--card);font-weight:800;font-size:14px;font-variant-numeric:tabular-nums}
+.jb.txt{background:var(--tile-soft);border-color:var(--tile-soft);color:var(--tile)}
+.jb.done{border-color:var(--sun);background:var(--sun-soft)}
+.jb:hover{border-color:var(--tile)}
+main [id^="go-"]{scroll-margin-top:12px}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+
+<div class="band" aria-hidden="true"></div>
+<div class="wrap">
+  <header>
+    <h1>¡A ti te <span>toca!</span></h1>
+    <p>Пять занятий, чтобы догнать класс по учебнику и тетради. За каждое выполненное упражнение получаешь звезду. Нажми на карточку, чтобы увидеть перевод, а на кнопку со звуком, чтобы услышать слово.</p>
+    <div class="voicebar" id="voicebar">
+      <label for="voice-sel">Голос для озвучки:</label>
+      <select id="voice-sel"></select>
+      <button class="btn ghost" id="voice-test" type="button">Послушать</button>
+    </div>
+  </header>
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+  <main id="lesson"><div class="done-banner">Если вы видите это сообщение вместо заданий, ваш браузер не смог запустить страницу. Откройте файл в Google Chrome, Microsoft Edge, Firefox или Safari: правой кнопкой мыши по файлу → «Открыть с помощью» → выберите браузер.</div></main>
+  <footer>
+    <span>Звёзды сохраняются в этом браузере.</span>
+    <button id="reset" type="button">Начать всё заново</button>
+  </footer>
+</div>
+
+<button class="totop off" id="totop" type="button" aria-label="Наверх" title="Наверх"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+<script>
+const SPK='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>';
+
+const LESSONS=[
+{id:'leccion1',short:'Повторение',title:'Моя семья',pages:'Учебник с. 22–29, 32–33 · Тетрадь с. 16–19',
+ rules:[
+  {h:'Вопросительные слова',html:`<table><tr><td>¿Qué?</td><td>что?</td></tr><tr><td>¿Quién? ¿Quiénes?</td><td>кто? (один / много)</td></tr>
+   <tr><td>¿Dónde?</td><td>где?</td></tr><tr><td>¿De dónde?</td><td>откуда?</td></tr><tr><td>¿Cómo?</td><td>как?</td></tr>
+   <tr><td>¿Cuántos? ¿Cuántas?</td><td>сколько?</td></tr></table>
+   <p class="note">В испанском перед вопросом ставят перевёрнутый знак <b>¿</b>, а у вопросительных слов всегда есть ударение: <em class="es">¿Cuántos años tienes?</em></p>`},
+  {h:'Ser и tener',html:`<table><tr><th></th><th>ser (быть)</th><th>tener (иметь)</th></tr>
+   <tr><td>yo</td><td>soy</td><td>tengo</td></tr><tr><td>tú</td><td>eres</td><td>tienes</td></tr>
+   <tr><td>él / ella</td><td>es</td><td>tiene</td></tr><tr><td>nosotros</td><td>somos</td><td>tenemos</td></tr>
+   <tr><td>vosotros</td><td>sois</td><td>tenéis</td></tr><tr><td>ellos / ellas</td><td>son</td><td>tienen</td></tr></table>
+   <p class="note">Возраст говорят через <b>tener</b>: <em class="es">Tengo once años.</em></p>`},
+  {h:'Llamarse: меня зовут',html:`<table><tr><td>yo</td><td><b>me</b> llamo</td><td>nosotros</td><td><b>nos</b> llamamos</td></tr>
+   <tr><td>tú</td><td><b>te</b> llamas</td><td>vosotros</td><td><b>os</b> llamáis</td></tr>
+   <tr><td>él, ella</td><td><b>se</b> llama</td><td>ellos</td><td><b>se</b> llaman</td></tr></table>
+   <p class="note">Маленькое слово me / te / se стоит перед глаголом. Это пригодится в занятии «Мой день»: <em class="es">me levanto, me acuesto</em>.</p>`},
+  {h:'Глаголы на -ar, -er, -ir',html:`<table><tr><th></th><th>hablar</th><th>aprender</th><th>vivir</th></tr>
+   <tr><td>yo</td><td>hablo</td><td>aprendo</td><td>vivo</td></tr><tr><td>tú</td><td>hablas</td><td>aprendes</td><td>vives</td></tr>
+   <tr><td>él</td><td>habla</td><td>aprende</td><td>vive</td></tr><tr><td>nosotros</td><td>hablamos</td><td>aprendemos</td><td>vivimos</td></tr>
+   <tr><td>vosotros</td><td>habláis</td><td>aprendéis</td><td>vivís</td></tr><tr><td>ellos</td><td>hablan</td><td>aprenden</td><td>viven</td></tr></table>
+   <p class="note">11 once · 12 doce · 13 trece · 14 catorce · 15 quince · 16 dieciséis · 20 veinte · 21 veintiuno · 30 treinta · 31 treinta y uno</p>`}
+ ],
+ words:[['el abuelo','дедушка'],['la abuela','бабушка'],['el padre','папа'],['la madre','мама'],['el hermano','брат'],['la hermana','сестра'],['el tío','дядя'],['la tía','тётя'],['el primo','двоюродный брат'],['la prima','двоюродная сестра'],['los mellizos','двойняшки'],['el padrastro','отчим'],['la madrastra','мачеха'],['los nietos','внуки'],['los bisnietos','правнуки'],['los tatarabuelos','прапрадедушки и прапрабабушки'],['hija única','единственная дочь'],['estar casados','быть женатыми'],['estar divorciados','быть в разводе'],['un ordenador','компьютер'],['un móvil','мобильный телефон'],['un correo electrónico','электронное письмо']],
+ ex:[
+  {type:'match',title:'Кто есть кто в семье',instr:'Нажми на испанское слово, потом на перевод.',pairs:[['el abuelo','дедушка'],['la hermana','сестра'],['el tío','дядя'],['la prima','двоюродная сестра'],['los nietos','внуки'],['los bisnietos','правнуки']]},
+  {type:'story',title:'La familia «R»',src:'По мотивам текста из учебника, с. 28',paras:[
+   'Me llamo Ramón y tengo once años. Vivo en un pueblo pequeño de la provincia de Cuenca.',
+   'Mi madre se llama Raimunda y es jueza. Mi padre también se llama Ramón, como yo, y es diseñador gráfico. A veces pinta cuadros. Mi hermana mayor, Rosalía, es adolescente. Mi hermano Rober tiene cinco años: ¡es un terremoto!',
+   'En mi familia hay una tradición: todos los nombres empiezan por «R». Mi pasión es el fútbol: juego en un equipo infantil.'],
+   gloss:'jueza — судья · diseñador gráfico — графический дизайнер · pinta cuadros — рисует картины · un terremoto — землетрясение (так говорят о непоседе) · empiezan por — начинаются на · el equipo — команда'},
+  {type:'choice',title:'По тексту «La familia R»',instr:'Как в тетради на с. 16: выбери правильный ответ.',items:[
+   {q:'El narrador se llama ___.',o:['Rober','Ramón','Rodrigo'],a:'Ramón'},
+   {q:'Tiene ___.',o:['9 años','10 años','11 años'],a:'11 años'},
+   {q:'Su pasión es ___.',o:['el baloncesto','el fútbol','el tenis'],a:'el fútbol'},
+   {q:'Su madre es ___.',o:['jueza','profesora','diseñadora'],a:'jueza'},
+   {q:'Rober tiene ___ años.',o:['tres','cinco','once'],a:'cinco'}]},
+  {type:'type',title:'Семейное древо «R»',instr:'Кем они приходятся друг другу? Впиши слово.',items:[
+   {q:'Raimunda es la ___ de Ramón.',a:['madre']},
+   {q:'Rosalía es la ___ de Ramón.',a:['hermana']},
+   {q:'Rober es el ___ de Rosalía.',a:['hermano']},
+   {q:'Ramón es el ___ de Rober.',a:['padre','hermano']}]},
+  {type:'choice',title:'Вопросительные слова',instr:'Выбери нужное слово.',items:[
+   {q:'¿___ te llamas? Me llamo Lucía.',o:['Cómo','Dónde','Qué'],a:'Cómo'},
+   {q:'¿De ___ eres? Soy de Madrid.',o:['dónde','cómo','quién'],a:'dónde'},
+   {q:'¿___ años tienes? Tengo once años.',o:['Cuántas','Cuántos','Qué'],a:'Cuántos'},
+   {q:'¿___ amigas tienes? Tengo seis amigas.',o:['Cuántas','Cuántos','Quiénes'],a:'Cuántas'},
+   {q:'¿___ es la madre de Ramón? Raimunda.',o:['Quién','Quiénes','Cómo'],a:'Quién'},
+   {q:'¿___ son tus mejores amigos? Matías y Pedro.',o:['Quién','Quiénes','Dónde'],a:'Quiénes'}]},
+  {type:'type',title:'Llamarse',instr:'Впиши нужную форму: me llamo, te llamas, se llama…',items:[
+   {q:'Yo ___ Lucía.',a:['me llamo']},{q:'¿Cómo ___ (tú)?',a:['te llamas']},
+   {q:'Mi profesora ___ señora Pérez.',a:['se llama']},{q:'Mis hermanos ___ Carlos y Ana.',a:['se llaman']},
+   {q:'Andrea y yo ___ como nuestras abuelas.',a:['nos llamamos']}]},
+  {type:'choice',title:'Ser',instr:'Выбери правильную форму глагола ser.',items:[
+   {q:'Nosotras ___ hermanas.',o:['somos','son','sois'],a:'somos'},
+   {q:'Carlos Alcaraz ___ un tenista famoso.',o:['es','son','eres'],a:'es'},
+   {q:'Tú ___ mi mejor amiga.',o:['eres','es','soy'],a:'eres'},
+   {q:'Yo ___ de Madrid.',o:['es','soy','eres'],a:'soy'}]},
+  {type:'type',title:'Tener',instr:'Впиши форму глагола tener.',items:[
+   {q:'Yo ___ once años.',a:['tengo']},{q:'Mi hermano ___ un perro.',a:['tiene']},
+   {q:'Nosotros ___ dos gatos.',a:['tenemos']},{q:'¿Cuántos años ___ (tú)?',a:['tienes']},
+   {q:'Vosotros ___ muchas actividades.',a:['tenéis']}]},
+  {type:'type',title:'Угадай, кто это',instr:'Как в учебнике на с. 33 и 36: кто это в семье?',items:[
+   {q:'Es el hermano de mi madre. Es mi ___.',a:['tío']},
+   {q:'Son los hijos de mis tíos. Son mis ___.',a:['primos']},
+   {q:'Es la madre de mi madre. Es mi ___.',a:['abuela']},
+   {q:'Es el hijo de mi hijo. Es mi ___.',a:['nieto']},
+   {q:'Son dos hermanos y tienen la misma edad. Son ___.',a:['mellizos','gemelos']}]},
+  {type:'story',title:'La abuela virtual de Teo',src:'По мотивам текста из учебника, с. 29',paras:[
+   'Teo vive en Chile y su abuela vive en España. Teo tiene una abuela virtual: para verla, enciende el ordenador.',
+   'Cuando en España es primavera, en Chile es otoño, porque Chile está en el hemisferio sur. Entre ellos hay miles de kilómetros, pero hablan mucho por internet.',
+   'La abuela dice: «¡Hola, Teo!». Y Teo responde: «¡Hola, abuela! ¡Te quiero mucho!». La abuela se emociona.'],
+   gloss:'verla — видеть её · enciende — включает · el hemisferio sur — южное полушарие · miles de — тысячи · responde — отвечает · te quiero — я тебя люблю · se emociona — растрогана'},
+  {type:'choice',title:'По тексту про Тео',instr:'Как в тетради на с. 18: правда (V) или нет (F)?',items:[
+   {q:'Teo vive en España.',o:['V','F'],a:'F',n:'Тео живёт в Чили.'},
+   {q:'La abuela vive en el hemisferio norte.',o:['V','F'],a:'V'},
+   {q:'Cuando en España es primavera, en Chile es otoño.',o:['V','F'],a:'V'},
+   {q:'Teo y su abuela se comunican por carta.',o:['V','F'],a:'F',n:'Они общаются через компьютер.'},
+   {q:'La abuela está triste.',o:['V','F'],a:'F',n:'Она растрогана и рада.'}]},
+  {type:'type',title:'Правильные глаголы',instr:'Поставь глагол в скобках в нужную форму.',items:[
+   {q:'Teo ___ en Chile.',h:'vivir',a:['vive']},
+   {q:'Mi abuelo y yo ___ por el ordenador.',h:'hablar',a:['hablamos']},
+   {q:'Yo ___ un artículo para el museo.',h:'escribir',a:['escribo']},
+   {q:'La hora ___ de la estación.',h:'depender',a:['depende']},
+   {q:'Los domingos (yo) ___ las lecciones.',h:'aprender',a:['aprendo']},
+   {q:'Vosotras ___ con vuestras amigas.',h:'hablar',a:['habláis']}]},
+  {type:'order',title:'Перетащи слова во фразу',instr:'Перетаскивай слова в строку в правильном порядке (или просто нажимай на них).',items:[
+   {s:'Mi madre se llama Raimunda y es jueza.',ru:'Мою маму зовут Раймунда, она судья.'},
+   {s:'Tengo once años y vivo en Cuenca.',ru:'Мне одиннадцать лет, и я живу в Куэнке.'},
+   {s:'Mi abuela vive en España.',ru:'Моя бабушка живёт в Испании.'},
+   {s:'¿Cuántos hermanos tienes?',ru:'Сколько у тебя братьев и сестёр?'}]},
+  {type:'translate',title:'Переведи с русского',instr:'Напиши фразу по-испански. Слова есть в текстах и правилах этого занятия.',items:[
+   {q:'Как тебя зовут?',a:['¿Cómo te llamas?']},
+   {q:'Меня зовут Рамон.',a:['Me llamo Ramón']},
+   {q:'Мне одиннадцать лет.',a:['Tengo once años','Tengo 11 años']},
+   {q:'Моя мама — судья.',a:['Mi madre es jueza']},
+   {q:'У меня есть брат и сестра.',a:['Tengo un hermano y una hermana']},
+   {q:'Моя бабушка живёт в Испании.',a:['Mi abuela vive en España']}]},
+  {type:'match',title:'Числа',instr:'Соедини число и слово.',pairs:[['11','once'],['12','doce'],['15','quince'],['16','dieciséis'],['20','veinte'],['31','treinta y uno']]}
+ ]},
+
+{id:'mascotas',short:'Повторение',title:'Питомцы и характер',pages:'Учебник с. 30–37 · Тетрадь с. 20–23',
+ rules:[
+  {h:'Мой, твой, наш',html:`<table><tr><th>чей</th><th>одна вещь</th><th>много вещей</th></tr>
+   <tr><td>мой</td><td>mi</td><td>mis</td></tr><tr><td>твой</td><td>tu</td><td>tus</td></tr><tr><td>его, её</td><td>su</td><td>sus</td></tr>
+   <tr><td>наш</td><td>nuestro / nuestra</td><td>nuestros / nuestras</td></tr><tr><td>ваш</td><td>vuestro / vuestra</td><td>vuestros / vuestras</td></tr></table>
+   <p class="note">Слово меняется по предмету, а не по хозяину: <em class="es">nuestras mascotas</em> (mascotas женского рода и их много).</p>`},
+  {h:'Прилагательные',html:`<p><em class="es">cariñoso → cariñosa → cariñosos → cariñosas</em></p>
+   <p>Если слово кончается на <b>-e</b> или согласную, меняется только число: <em class="es">amable → amables</em>, <em class="es">sociable → sociables</em>.</p>`},
+  {h:'Отрицание',html:`<p>Чтобы сказать «не», ставим <b>no</b> перед глаголом:</p><p><em class="es">No es una mascota.</em> Это не питомец.</p><p><em class="es">Con mi padre no se porta bien.</em></p>`}
+ ],
+ words:[['el perro','собака'],['el gato','кот'],['el conejo','кролик'],['el conejillo de Indias','морская свинка'],['el hámster','хомяк'],['la tortuga','черепаха'],['el pájaro','птица'],['el periquito','попугайчик'],['el pez rojo','золотая рыбка'],['la serpiente','змея'],['el gallo','петух'],['el hurón','хорёк'],['cariñoso','ласковый'],['valiente','смелый'],['amistoso','дружелюбный'],['nervioso','нервный'],['activo','активный'],['independiente','независимый'],['sociable','общительный'],['achuchable','такой, что хочется обнять'],['se porta muy bien','хорошо себя ведёт']],
+ ex:[
+  {type:'match',title:'Питомцы',instr:'Соедини животное и перевод.',pairs:[['la tortuga','черепаха'],['el pez rojo','золотая рыбка'],['el hámster','хомяк'],['el conejillo de Indias','морская свинка'],['el periquito','попугайчик'],['la serpiente','змея']]},
+  {type:'match',title:'Характер',instr:'Соедини прилагательное и перевод.',pairs:[['valiente','смелый'],['amistoso','дружелюбный'],['nervioso','нервный'],['cariñoso','ласковый'],['sociable','общительный'],['independiente','независимый']]},
+  {type:'choice',title:'Мой, наш, ваш',instr:'Выбери нужное слово.',items:[
+   {q:'Hablamos de ___ mascotas con los amigos.',o:['nuestro','nuestras','nuestra'],a:'nuestras'},
+   {q:'Quiero a ___ perro porque es dinámico.',o:['mi','mis','nuestra'],a:'mi'},
+   {q:'Son como peluches ___ conejos.',o:['vuestra','vuestros','vuestro'],a:'vuestros'},
+   {q:'En casa, mis padres aceptan ___ mascotas (nosotros).',o:['nuestras','nuestros','nuestra'],a:'nuestras'},
+   {q:'Ellos son los nietos de ___ abuelo (él).',o:['su','sus','mi'],a:'su'}]},
+  {type:'choice',title:'Согласуй прилагательное',instr:'Какое окончание подходит?',items:[
+   {q:'Mi gata es muy ___.',o:['cariñoso','cariñosa','cariñosos'],a:'cariñosa'},
+   {q:'Los perros son ___.',o:['divertido','divertidas','divertidos'],a:'divertidos'},
+   {q:'Mis hermanas son ___.',o:['dinámicas','dinámico','dinámicos'],a:'dinámicas'},
+   {q:'Mi abuela es muy ___.',o:['sociable','sociabla','sociables'],a:'sociable'}]},
+  {type:'order',title:'Питомцы из слогов',instr:'Как в учебнике на с. 36: собери название животного.',join:true,items:[
+   {s:'pe|rro',ru:'собака'},{s:'tor|tu|ga',ru:'черепаха'},{s:'pe|ri|qui|to',ru:'попугайчик'},{s:'co|ne|jo',ru:'кролик'}]},
+  {type:'story',title:'Toby',src:'',paras:[
+   'Me llamo Lucía y tengo once años. En mi familia somos cinco: mi padre, mi madre, mi hermano Pablo, mi abuela Carmen y yo. También tenemos un perro. Se llama Toby y tiene tres años. Es pequeño, marrón y muy cariñoso.',
+   'Toby se porta muy bien con mi abuela: duerme a su lado en el sofá. Con mi hermano Pablo es muy divertido: corren juntos en el parque. Pero con mi padre no se porta bien: ¡come sus zapatos! Mi padre no está contento.',
+   'Mi madre dice que Toby es un miembro más de la familia. Yo creo que es mi mejor amigo.'],
+   gloss:'duerme a su lado — спит рядом с ней · juntos — вместе · los zapatos — ботинки · contento — довольный · dice — говорит · creo — думаю · un miembro más — ещё один член'},
+  {type:'choice',title:'По тексту: правда или нет?',instr:'Прочитай текст «Toby» и ответь. V значит правда, F значит неправда.',items:[
+   {q:'En la familia de Lucía son cinco.',o:['V','F'],a:'V'},
+   {q:'Toby es un gato.',o:['V','F'],a:'F',n:'Toby es un perro.'},
+   {q:'Toby tiene tres años.',o:['V','F'],a:'V'},
+   {q:'Toby se porta muy bien con la abuela.',o:['V','F'],a:'V'},
+   {q:'Con el padre, Toby se porta muy bien.',o:['V','F'],a:'F',n:'Он грызёт его ботинки!'},
+   {q:'Toby corre con Pablo en el parque.',o:['V','F'],a:'V'}]},
+  {type:'order',title:'Перетащи слова во фразу',instr:'Перетаскивай слова в строку в правильном порядке. Можно и просто нажимать на них.',items:[
+   {s:'Toby se porta muy bien con mi abuela.',ru:'Тоби очень хорошо ведёт себя с моей бабушкой.'},
+   {s:'Mi hermano y Toby corren en el parque.',ru:'Мой брат и Тоби бегают в парке.'},
+   {s:'Toby es pequeño, marrón y muy cariñoso.',ru:'Тоби маленький, коричневый и очень ласковый.'},
+   {s:'Con mi padre no se porta bien.',ru:'С моим папой он ведёт себя плохо.'},
+   {s:'Es un miembro más de la familia.',ru:'Он ещё один член семьи.'}]},
+  {type:'translate',title:'Переведи с русского',instr:'Напиши фразу по-испански. Все нужные слова есть в тексте про Тоби.',items:[
+   {q:'У нас есть собака.',a:['Tenemos un perro','Nosotros tenemos un perro']},
+   {q:'Его зовут Тоби.',a:['Se llama Toby']},
+   {q:'Ему три года.',a:['Tiene tres años','Toby tiene tres años']},
+   {q:'Он маленький и очень ласковый.',a:['Es pequeño y muy cariñoso','Toby es pequeño y muy cariñoso']},
+   {q:'Он хорошо ведёт себя с моей бабушкой.',a:['Se porta bien con mi abuela','Toby se porta bien con mi abuela','Se porta muy bien con mi abuela']},
+   {q:'С моим папой он ведёт себя плохо.',a:['Con mi padre no se porta bien','Con mi padre se porta mal','No se porta bien con mi padre','Se porta mal con mi padre']}]},
+  {type:'write',title:'Мини-проект: мой питомец',instr:'Расскажи о своём питомце (или придумай его): как зовут, сколько лет, какой он и как ведёт себя с каждым в семье. Нужно 4 фразы.',starters:['Tengo un perro / un gato. ','Se llama ','Tiene ',' años. ','Es muy ','Se porta muy bien con mi ','Con mi hermano es ','No se porta bien con mi ','Es un miembro más de la familia. '],min:4},
+  {type:'cards',title:'Новые слова: Гави и День семьи',src:'Учебник с. 37, тетрадь с. 22–23',words:[["el apellido", "фамилия"], ["nacer (nace)", "родиться (родился, родилась)"], ["crecer (crece)", "расти (растёт)"], ["mayor", "старший; пожилой"], ["los aficionados", "болельщики, фанаты"], ["apasionado", "увлечённый, страстный"], ["la pareja", "пара"], ["andar (anda)", "идти, ходить пешком"], ["el adulto", "взрослый"], ["la silla", "стул"], ["la rueda", "колесо"], ["la silla de ruedas", "инвалидная коляска"], ["el anciano", "пожилой человек, старик"], ["saltar", "прыгать"]]},
+  {type:'story',title:'Gavi, el fútbol y la familia',src:'По мотивам текста из учебника, с. 37',paras:[
+   'El nombre «Gavi» es solo un apellido. El nombre verdadero del futbolista español es Pablo Martín Páez Gavira.',
+   'Gavi nace el 5 de agosto de 2004 en Los Palacios y Villafranca, en España. Es el único hijo de sus padres, Pablo y Gavinia, y crece con su hermana mayor, Aurora.',
+   'Muchos aficionados al fútbol dicen que Gavi es uno de los futbolistas más apasionados de Europa.'],
+   gloss:'verdadero — настоящий · el único hijo — единственный сын · dicen — говорят · uno de los más… — один из самых…'},
+  {type:'choice',title:'Гави: правда или нет?',instr:'Как в тетради на с. 23: V значит правда, F значит неправда.',items:[
+   {q:'Gavi se llama realmente Carlos López García.',o:['V','F'],a:'F',n:'Его зовут Pablo Martín Páez Gavira.'},
+   {q:'Gavi nace el 5 de agosto de 2005.',o:['V','F'],a:'F',n:'Он родился в 2004 году.'},
+   {q:'Su padre se llama Pablo.',o:['V','F'],a:'V'},
+   {q:'Gavi crece con su hermana mayor, Aurelia.',o:['V','F'],a:'F',n:'Его сестру зовут Aurora.'},
+   {q:'Gavi es el único hijo de sus padres.',o:['V','F'],a:'V'}]},
+  {type:'story',title:'Mozart, la música y la familia',src:'Ещё один текст на те же новые слова',paras:[
+   'Mozart es un apellido muy famoso. El nombre completo del compositor es Wolfgang Amadeus Mozart.',
+   'Wolfgang nace el 27 de enero de 1756 en Salzburgo, hoy en Austria. Su padre, Leopold, es músico. Wolfgang crece con su hermana mayor, Nannerl. Los dos tocan muy bien el piano.',
+   'Wolfgang es un niño muy apasionado por la música: a los cinco años ya compone pequeñas obras. Con su padre y su hermana viaja por Europa y toca para reyes y reinas.',
+   'De adulto, vive en Viena. Hoy, millones de aficionados a la música escuchan sus obras.'],
+   gloss:'el nombre completo — полное имя · el compositor — композитор · hoy — сегодня · tocan el piano — играют на фортепиано · ya compone — уже сочиняет · las obras — произведения · viaja — путешествует · los reyes — короли · de adulto — когда стал взрослым · escuchan — слушают'},
+  {type:'choice',title:'Моцарт: правда или нет?',instr:'V значит правда, F значит неправда.',items:[
+   {q:'«Mozart» es el nombre del compositor.',o:['V','F'],a:'F',n:'Mozart — это фамилия, а имя — Wolfgang.'},
+   {q:'Wolfgang nace en 1756.',o:['V','F'],a:'V'},
+   {q:'Wolfgang crece con su hermano menor.',o:['V','F'],a:'F',n:'Он растёт со старшей сестрой Наннерль.'},
+   {q:'Su padre es futbolista.',o:['V','F'],a:'F',n:'Его папа музыкант.'},
+   {q:'A los cinco años, Wolfgang ya compone.',o:['V','F'],a:'V'},
+   {q:'De adulto, Mozart vive en Madrid.',o:['V','F'],a:'F',n:'Он живёт в Вене.'}]},
+  {type:'type',title:'Моцарт: вставь слово',instr:'Впиши слово из словарика.',items:[
+   {q:'Mozart es su ___.',a:['apellido']},
+   {q:'Wolfgang ___ el 27 de enero de 1756.',a:['nace']},
+   {q:'Wolfgang ___ con su hermana mayor, Nannerl.',a:['crece']},
+   {q:'Nannerl es su hermana ___.',a:['mayor']},
+   {q:'Es un niño muy ___ por la música.',a:['apasionado']},
+   {q:'Millones de ___ a la música escuchan sus obras.',a:['aficionados']}]},
+  {type:'phrases',title:'Фразы для заучивания',instr:'Здесь 14 фраз с новыми словами. Прочитай фразу, скажи перевод вслух, потом нажми на неё и проверь себя. Значок динамика читает фразу.',items:[{"s": "«Gavi» es solo un apellido.", "ru": "«Гави» — это только фамилия."}, {"s": "Gavi nace el 5 de agosto de 2004.", "ru": "Гави родился 5 августа 2004 года."}, {"s": "Gavi crece con su hermana mayor, Aurora.", "ru": "Гави растёт со своей старшей сестрой Авророй."}, {"s": "Mi hermana mayor tiene quince años.", "ru": "Моей старшей сестре пятнадцать лет."}, {"s": "Los aficionados aman el fútbol.", "ru": "Болельщики любят футбол."}, {"s": "Gavi es un futbolista muy apasionado.", "ru": "Гави — очень увлечённый футболист."}, {"s": "Es una pareja con dos niños.", "ru": "Это пара с двумя детьми."}, {"s": "Los niños andan sobre una rayuela.", "ru": "Дети идут по классикам."}, {"s": "Un adulto juega con una pelota.", "ru": "Взрослый играет с мячом."}, {"s": "Esta silla es para mi abuela.", "ru": "Этот стул для моей бабушки."}, {"s": "La bicicleta tiene dos ruedas.", "ru": "У велосипеда два колеса."}, {"s": "Es un adulto en una silla de ruedas.", "ru": "Это взрослый в инвалидной коляске."}, {"s": "Es una pareja de ancianos con su nieto.", "ru": "Это пожилая пара со своим внуком."}, {"s": "Tres niños saltan a la cuerda.", "ru": "Трое детей прыгают через скакалку."}]},
+  {type:'match',title:'Новые слова, часть 1',instr:'Соедини слово и перевод.',pairs:[["el apellido", "фамилия"], ["nacer (nace)", "родиться (родился, родилась)"], ["crecer (crece)", "расти (растёт)"], ["mayor", "старший; пожилой"], ["los aficionados", "болельщики, фанаты"], ["apasionado", "увлечённый, страстный"], ["la pareja", "пара"]]},
+  {type:'match',title:'Новые слова, часть 2',instr:'Соедини слово и перевод.',pairs:[["andar (anda)", "идти, ходить пешком"], ["el adulto", "взрослый"], ["la silla", "стул"], ["la rueda", "колесо"], ["la silla de ruedas", "инвалидная коляска"], ["el anciano", "пожилой человек, старик"], ["saltar", "прыгать"]]},
+  {type:'type',title:'Вставь слово, часть 1',instr:'Впиши пропущенное слово из словарика.',items:[
+   {q:'«Gavi» es solo un ___.',a:['apellido']},{q:'Gavi ___ el 5 de agosto de 2004.',a:['nace']},
+   {q:'Gavi ___ con su hermana mayor.',a:['crece']},{q:'Mi hermana ___ tiene quince años.',a:['mayor']},
+   {q:'Los ___ aman el fútbol.',a:['aficionados']},{q:'Gavi es un futbolista muy ___.',a:['apasionado']},
+   {q:'Es una ___ con dos niños.',a:['pareja']}]},
+  {type:'type',title:'Вставь слово, часть 2',instr:'Впиши пропущенное слово из словарика.',items:[
+   {q:'Los niños ___ sobre una rayuela.',a:['andan']},{q:'Un ___ juega con una pelota.',a:['adulto']},
+   {q:'Esta ___ es para mi abuela.',a:['silla']},{q:'La bicicleta tiene dos ___.',a:['ruedas']},
+   {q:'Es un adulto en una silla de ___.',a:['ruedas']},{q:'Es una pareja de ___ con su nieto.',a:['ancianos']},
+   {q:'Tres niños ___ a la cuerda.',a:['saltan']}]},
+  {type:'order',title:'Перетащи слова: новые фразы',instr:'Перетаскивай слова в строку в правильном порядке (или просто нажимай на них).',items:[
+   {s:'Gavi crece con su hermana mayor.',ru:'Гави растёт со своей старшей сестрой.'},
+   {s:'Es una pareja de ancianos con su nieto.',ru:'Это пожилая пара со своим внуком.'},
+   {s:'Tres niños saltan a la cuerda.',ru:'Трое детей прыгают через скакалку.'},
+   {s:'Es un adulto en una silla de ruedas.',ru:'Это взрослый в инвалидной коляске.'}]},
+  {type:'translate',title:'Переведи: новые фразы',instr:'Напиши фразу по-испански. Все фразы есть в списке для заучивания.',items:[
+   {q:'«Гави» — это только фамилия.',a:['«Gavi» es solo un apellido','Gavi es solo un apellido']},
+   {q:'Моей старшей сестре пятнадцать лет.',a:['Mi hermana mayor tiene quince años','Mi hermana mayor tiene 15 años']},
+   {q:'Болельщики любят футбол.',a:['Los aficionados aman el fútbol']},
+   {q:'У велосипеда два колеса.',a:['La bicicleta tiene dos ruedas']},
+   {q:'Этот стул для моей бабушки.',a:['Esta silla es para mi abuela']}]}
+ ]},
+
+{id:'leccion3',short:'Новое',title:'Navidad en Madrid',pages:'Учебник с. 38–41 · Тетрадь с. 24–27',
+ rules:[
+  {h:'Даты',html:`<p>Число, потом <b>de</b>, потом месяц: <em class="es">el 22 de diciembre</em>, <em class="es">el 6 de enero</em>.</p>
+   <p class="note">Месяцы пишутся с маленькой буквы: enero, febrero, marzo, abril, mayo, junio, julio, agosto, septiembre, octubre, noviembre, diciembre.</p>`},
+  {h:'Праздничный календарь',html:`<table><tr><td>22 de diciembre</td><td>Lotería de Navidad</td></tr><tr><td>31 de diciembre</td><td>Nochevieja</td></tr>
+   <tr><td>1 de enero</td><td>Año Nuevo</td></tr><tr><td>5 de enero</td><td>Cabalgata de Reyes</td></tr><tr><td>6 de enero</td><td>Reyes Magos</td></tr></table>
+   <p class="note">В Испании подарки детям приносят три короля-мага: Melchor, Gaspar и Baltasar.</p>`},
+  {h:'Ночевьеха',html:`<p>В полночь 31 декабря люди собираются на площади <em class="es">Puerta del Sol</em>. Часы бьют двенадцать раз (<em class="es">doce campanadas</em>), и на каждый удар съедают одну виноградину (<em class="es">una uva</em>).</p>`}
+ ],
+ words:[['la Lotería de Navidad','рождественская лотерея'],['el Gordo','главный выигрыш'],['el décimo','лотерейный билет'],['el sorteo','розыгрыш'],['los bombos','барабаны лотереи'],['Nochevieja','новогодняя ночь'],['la Puerta del Sol','площадь в Мадриде'],['las campanadas','удары часов'],['las uvas','виноград'],['el reloj','часы'],['el Año Nuevo','Новый год'],['los Reyes Magos','короли-маги'],['la Cabalgata','шествие'],['los regalos','подарки'],['la carta','письмо'],['el roscón','праздничный пирог-кольцо'],['el turrón','туррон, нуга'],['la magia','волшебство'],['cantar','петь'],['ganar','выигрывать'],['el premio','приз'],['las campanas','колокола'],['sonar','звучать, звонить'],['celebrar','праздновать'],['la alegría','радость'],['la corona','корона'],['el desfile','парад']],
+ ex:[
+  {type:'match',title:'Праздник и дата',instr:'Соедини праздник с датой.',pairs:[['Lotería de Navidad','22 de diciembre'],['Nochevieja','31 de diciembre'],['Año Nuevo','1 de enero'],['Cabalgata de Reyes','5 de enero'],['Reyes Magos','6 de enero']]},
+  {type:'story',title:'La Lotería de Navidad',src:'По мотивам документов из учебника, с. 39',paras:[
+   'El 22 de diciembre, en el Teatro Real de Madrid, hay un sorteo muy especial: la Lotería de Navidad.',
+   'Es muy fácil: hay dos bombos. En un bombo están los números y en el otro, los premios. Dos niños cantan: uno canta el número y el otro, el premio.',
+   'El premio más grande se llama «el Gordo». Cuando gana, la gente está muy contenta.'],
+   gloss:'un sorteo — розыгрыш · fácil — лёгкий, простой · los bombos — барабаны · cantan — поют · el premio — приз · gana — выигрывает'},
+  {type:'choice',title:'Правда или нет?',instr:'Как в тетради на с. 24. V значит verdadero (правда), F значит falso (неправда).',items:[
+   {q:'El sorteo de la Lotería se celebra el 20 de diciembre.',o:['V','F'],a:'F',n:'Не 20, а 22 de diciembre.'},
+   {q:'El décimo de lotería cuesta 22 euros.',o:['V','F'],a:'F',n:'Он стоит 20 euros.'},
+   {q:'En el sorteo hay dos bombos.',o:['V','F'],a:'V'},
+   {q:'Los niños cantan durante el sorteo.',o:['V','F'],a:'V'},
+   {q:'La gente está triste cuando gana el Gordo.',o:['V','F'],a:'F',n:'Конечно, все радуются!'},
+   {q:'El sorteo se celebra en el Palacio Real de Madrid.',o:['V','F'],a:'F',n:'В Teatro Real.'},
+   {q:'En Nochevieja los españoles comen doce uvas.',o:['V','F'],a:'V'}]},
+  {type:'type',title:'Ночевьеха в Мадриде',instr:'Дополни текст словами из урока.',items:[
+   {q:'El 31 de diciembre la gente se reúne en la ___ del Sol.',a:['Puerta']},
+   {q:'Allí hay un ___ de Navidad muy grande.',a:['árbol']},
+   {q:'La gente escucha las doce ___ del reloj.',a:['campanadas']},
+   {q:'Con cada campanada comen una ___.',a:['uva']},
+   {q:'Y así los españoles celebran el Año ___.',a:['Nuevo']}]},
+  {type:'story',title:'La noche de Reyes',src:'По мотивам текста из учебника, с. 41',paras:[
+   'La noche del 5 al 6 de enero es una noche mágica. El 5 de enero, los Reyes Magos, Melchor, Gaspar y Baltasar, recorren las calles de la ciudad en una cabalgata espectacular.',
+   'Los niños comen roscón y beben chocolate. Por la noche, los Reyes Magos visitan las casas y dejan regalos. ¡Es tiempo de alegría, ilusión y magia!'],
+   gloss:'recorren — проезжают по · la cabalgata — шествие · beben — пьют · visitan — посещают · dejan — оставляют · la ilusión — радостное ожидание'},
+  {type:'choice',title:'По тексту про Reyes',instr:'Как в тетради на с. 26: выбери правильный ответ.',items:[
+   {q:'El 5 de enero es el día de ___.',o:['la Cabalgata','la Lotería','Nochevieja'],a:'la Cabalgata'},
+   {q:'Los Reyes Magos se llaman Melchor, Gaspar y ___.',o:['Baltasar','Ramón','Felipe'],a:'Baltasar'},
+   {q:'Los Reyes Magos ___ las casas.',o:['visitan','visita','visitamos'],a:'visitan'},
+   {q:'Los Reyes ___ las calles de la ciudad.',o:['recorre','recorren','recorremos'],a:'recorren'},
+   {q:'Los niños comen ___ y beben chocolate.',o:['roscón','churros','pizza'],a:'roscón'}]},
+  {type:'type',title:'Акростих: тайное слово',instr:'Впиши пропущенную букву в каждое слово. Первые буквы сложатся в тайное слово.',items:[
+   {q:'Los niños escriben una ___arta a los Reyes Magos.',a:['c'],s:1},
+   {q:'___legría',a:['a'],s:1},{q:'___altasar',a:['b'],s:1},{q:'m___gia',a:['a'],s:1},
+   {q:'Me___chor',a:['l'],s:1},{q:'re___alos',a:['g'],s:1},{q:'G___spar',a:['a'],s:1},
+   {q:'visi___an',a:['t'],s:1},{q:'coron___',a:['a'],s:1},
+   {q:'La palabra secreta es: ___',a:['cabalgata']}]},
+  {type:'choice',title:'Что едят на праздники?',instr:'Едят ли это испанцы на Рождество?',items:[
+   {q:'el turrón',o:['Sí','No'],a:'Sí'},{q:'el roscón de Reyes',o:['Sí','No'],a:'Sí'},
+   {q:'las uvas en Nochevieja',o:['Sí','No'],a:'Sí'},{q:'las patatas fritas',o:['Sí','No'],a:'No',n:'Это не праздничная еда.'}]},
+  {type:'order',title:'Собери слово из слогов',instr:'Нажимай на слоги по порядку.',join:true,items:[
+   {s:'di|ciem|bre',ru:'декабрь'},{s:'e|ne|ro',ru:'январь'},{s:'cam|pa|na|das',ru:'удары часов'},{s:'ca|bal|ga|ta',ru:'шествие'}]},
+  {type:'order',title:'Перетащи слова во фразу',instr:'Перетаскивай слова в строку в правильном порядке (или просто нажимай на них).',items:[
+   {s:'Los niños escriben una carta a los Reyes Magos.',ru:'Дети пишут письмо королям-магам.'},
+   {s:'El 6 de enero llegan los regalos.',ru:'6 января приходят подарки.'},
+   {s:'En Nochevieja comemos doce uvas.',ru:'В новогоднюю ночь мы едим двенадцать виноградин.'}]},
+  {type:'translate',title:'Переведи с русского',instr:'Напиши фразу по-испански.',items:[
+   {q:'Дети пишут письмо.',a:['Los niños escriben una carta']},
+   {q:'Мне нравится туррон.',a:['Me gusta el turrón']},
+   {q:'Короли-маги посещают дома.',a:['Los Reyes Magos visitan las casas']},
+   {q:'В новогоднюю ночь мы едим виноград.',a:['En Nochevieja comemos uvas','En Nochevieja comemos las uvas','Comemos uvas en Nochevieja']},
+   {q:'Двадцать второе декабря.',a:['El 22 de diciembre','El veintidós de diciembre','22 de diciembre','Veintidós de diciembre']}]}
+ ]},
+
+{id:'leccion2',short:'Новое',title:'Мой день',pages:'Учебник с. 43 · Тетрадь с. 28–31',
+ rules:[
+  {h:'Me gusta и me gustan',html:`<table><tr><th>кому</th><th>одна вещь / действие</th><th>много вещей</th></tr>
+   <tr><td>мне</td><td>me gusta</td><td>me gustan</td></tr><tr><td>тебе</td><td>te gusta</td><td>te gustan</td></tr>
+   <tr><td>ему, ей</td><td>le gusta</td><td>le gustan</td></tr><tr><td>нам</td><td>nos gusta</td><td>nos gustan</td></tr>
+   <tr><td>вам</td><td>os gusta</td><td>os gustan</td></tr><tr><td>им</td><td>les gusta</td><td>les gustan</td></tr></table>
+   <p><em class="es">Me gusta el atardecer. Me gustan los animales. Me gusta ir de compras.</em></p>
+   <p class="note"><b>encantar</b> работает так же, но значит «очень нравится, обожаю»: <em class="es">Me encantan los churros.</em></p>`},
+  {h:'Soler: «обычно делаю»',html:`<p>После soler всегда идёт неопределённая форма глагола.</p>
+   <table><tr><td>yo</td><td>suelo</td><td>vosotros</td><td>soléis</td></tr><tr><td>tú</td><td>sueles</td><td>ellos</td><td>suelen</td></tr>
+   <tr><td>él</td><td>suele</td><td>nosotros</td><td>solemos</td></tr></table>
+   <p><em class="es">Suelo cenar a las nueve.</em> Я обычно ужинаю в девять.</p>
+   <p class="note">o меняется на <b>ue</b> везде, кроме nosotros и vosotros. Так же: <em class="es">almorzar → almuerzo</em>, <em class="es">acostarse → me acuesto</em>.</p>`},
+  {h:'Возвратные глаголы',html:`<p>Глаголы с <b>-se</b> на конце (просыпаться, одеваться) получают маленькое слово впереди:</p>
+   <table><tr><td>yo</td><td><b>me</b> levanto</td><td>nosotros</td><td><b>nos</b> levantamos</td></tr>
+   <tr><td>tú</td><td><b>te</b> levantas</td><td>vosotros</td><td><b>os</b> levantáis</td></tr>
+   <tr><td>él</td><td><b>se</b> levanta</td><td>ellos</td><td><b>se</b> levantan</td></tr></table>
+   <p class="note">После gustar, querer и soler это слово приклеивается к концу: <em class="es">Me gusta levantar<b>me</b> temprano.</em></p>`},
+  {h:'Который час?',html:`<p><em class="es">¿Qué hora es?</em></p>
+   <table><tr><td>1:00</td><td>Es la una</td></tr><tr><td>7:00</td><td>Son las siete</td></tr><tr><td>7:30</td><td>Son las siete y media</td></tr>
+   <tr><td>7:15</td><td>Son las siete y cuarto</td></tr><tr><td>6:45</td><td>Son las siete menos cuarto</td></tr></table>
+   <p class="note">«В восемь» будет <em class="es">a las ocho</em>. Утро, день, вечер: <em class="es">de la mañana, de la tarde, de la noche</em>.</p>`},
+  {h:'Когда едят испанцы',html:`<p>В Испании едят поздно (<em class="es">los horarios son tardíos</em>):</p>
+   <table><tr><td>la comida (обед)</td><td>a las dos o a las tres de la tarde</td></tr><tr><td>la cena (ужин)</td><td>a las nueve o a las diez de la noche</td></tr></table>
+   <p class="note">Поэтому после школы детям нужен полдник: <em class="es">la merienda</em>.</p>`}
+ ],
+ words:[['despertarse','просыпаться'],['levantarse','вставать'],['lavarse la cara','умываться'],['vestirse','одеваться'],['desayunar','завтракать'],['almorzar','обедать'],['merendar','полдничать'],['cenar','ужинать'],['acostarse','ложиться спать'],['pasear','гулять'],['ir de compras','ходить по магазинам'],['temprano','рано'],['el atardecer','закат'],['la ciudad','город'],['el campo','деревня, природа'],['el centro comercial','торговый центр'],['la cocina','кухня'],['el salón','гостиная'],['el dormitorio','спальня'],['las redes sociales','соцсети']],
+ ex:[
+  {type:'match',title:'Мой распорядок',instr:'Соедини глагол и перевод.',pairs:[['despertarse','просыпаться'],['levantarse','вставать'],['vestirse','одеваться'],['desayunar','завтракать'],['merendar','полдничать'],['cenar','ужинать'],['acostarse','ложиться спать']]},
+  {type:'choice',title:'Gusta или gustan?',instr:'Смотри, одна вещь или много.',items:[
+   {q:'No me ___ los centros comerciales.',o:['gusta','gustan'],a:'gustan'},
+   {q:'Me ___ el atardecer.',o:['gusta','gustan'],a:'gusta'},
+   {q:'A mis padres les ___ la tortilla de patatas.',o:['encanta','encantan'],a:'encanta'},
+   {q:'Nos ___ ir de compras los domingos.',o:['encanta','encantan'],a:'encanta'},
+   {q:'¿Te ___ los animales?',o:['gusta','gustan'],a:'gustan'},
+   {q:'Me ___ desayunar temprano.',o:['gusta','gustan'],a:'gusta'}]},
+  {type:'type',title:'Soler',instr:'Впиши форму soler.',items:[
+   {q:'Nosotros ___ comer churros los domingos.',a:['solemos']},
+   {q:'Tu hermano ___ beber chocolate.',a:['suele']},
+   {q:'Yo ___ acostarme temprano.',a:['suelo']},
+   {q:'Vosotros ___ cenar a las diez de la noche.',a:['soléis']},
+   {q:'¿Cómo ___ despertarte (tú)?',a:['sueles']},
+   {q:'Mis abuelos ___ pasear por el campo.',a:['suelen']}]},
+  {type:'choice',title:'Возвратные глаголы',instr:'Выбери правильный вариант.',items:[
+   {q:'Yo ___ a las siete.',o:['me levanto','se levanta','levanto'],a:'me levanto'},
+   {q:'Mi hermano desayuna después de ___.',o:['se vestir','vestirse','vestirme'],a:'vestirse'},
+   {q:'Me gusta ___ temprano.',o:['me levantar','levantarme','levantarse'],a:'levantarme'},
+   {q:'Nosotros ___ a las diez.',o:['nos acostamos','se acuestan','nos acuestamos'],a:'nos acostamos'},
+   {q:'No quieres ___ la cara.',o:['lavarte','te lavar','lavarse'],a:'lavarte'}]},
+  {type:'match',title:'Который час?',instr:'Соедини часы и фразу.',pairs:[['07:00','Son las siete'],['08:30','Son las ocho y media'],['12:15','Son las doce y cuarto'],['13:00','Es la una'],['16:45','Son las cinco menos cuarto'],['22:00','Son las diez de la noche']]},
+  {type:'choice',title:'Испанские часы еды',instr:'Как в учебнике на с. 43: когда едят испанцы?',items:[
+   {q:'En España se come a las ___.',o:['doce','dos o tres de la tarde'],a:'dos o tres de la tarde'},
+   {q:'En España se cena a las ___.',o:['siete de la tarde','nueve o diez de la noche'],a:'nueve o diez de la noche'},
+   {q:'Los horarios de las comidas de los españoles son ___.',o:['tempranos','tardíos'],a:'tardíos'},
+   {q:'«Las tres de la tarde» es…',o:['15:00','03:00'],a:'15:00'},
+   {q:'«La una de la tarde» es…',o:['13:00','01:00'],a:'13:00'}]},
+  {type:'type',title:'Комнаты в доме',instr:'Вставь salón, dormitorio или cocina, как в тексте «Voy a desayunar».',items:[
+   {q:'El narrador se despierta en su ___.',a:['dormitorio']},
+   {q:'Pasa por el ___.',a:['salón']},
+   {q:'Va a desayunar a la ___.',a:['cocina']}]},
+  {type:'order',title:'Перетащи слова во фразу',instr:'Перетаскивай слова в строку в правильном порядке (или просто нажимай на них).',items:[
+   {s:'¿Cómo sueles despertarte?',ru:'Как ты обычно просыпаешься?'},
+   {s:'¿Sueles ver el atardecer?',ru:'Ты часто смотришь на закат?'},
+   {s:'Me despierto a las siete de la mañana.',ru:'Я просыпаюсь в семь утра.'}]},
+  {type:'translate',title:'Переведи с русского',instr:'Напиши фразу по-испански.',items:[
+   {q:'Который час?',a:['¿Qué hora es?']},
+   {q:'Я встаю в семь.',a:['Me levanto a las siete','Me levanto a las 7']},
+   {q:'Я обычно завтракаю в восемь.',a:['Suelo desayunar a las ocho','Suelo desayunar a las 8','Normalmente desayuno a las ocho']},
+   {q:'Мне нравится закат.',a:['Me gusta el atardecer']},
+   {q:'Мне нравятся животные.',a:['Me gustan los animales']},
+   {q:'Я ложусь спать в десять.',a:['Me acuesto a las diez','Me acuesto a las 10']}]},
+  {type:'write',title:'Мини-проект: мой день',instr:'Напиши 4 фразы о своём дне с указанием времени. Подсказки можно нажимать.',starters:['Suelo despertarme a las ','Me levanto a las ','Desayuno a las ','Almuerzo en el colegio a las ','Meriendo a las ','Ceno a las ','Me acuesto a las ','Me gusta ','No me gusta '],min:4}
+ ]},
+
+{id:'leccion4',short:'Новое + проверка',title:'Chocolate con churros',pages:'Тетрадь, с. 32–33',
+ rules:[
+  {h:'Порядковые числа',html:`<table><tr><td>1º</td><td>primero</td><td>6º</td><td>sexto</td></tr><tr><td>2º</td><td>segundo</td><td>7º</td><td>séptimo</td></tr>
+   <tr><td>3º</td><td>tercero</td><td>8º</td><td>octavo</td></tr><tr><td>4º</td><td>cuarto</td><td>9º</td><td>noveno</td></tr><tr><td>5º</td><td>quinto</td><td>10º</td><td>décimo</td></tr></table>
+   <p class="note">Перед словом мужского рода в единственном числе <b>primero</b> и <b>tercero</b> теряют -o: <em class="es">el primer chocolate</em>, <em class="es">el tercer plato</em>. Но: <em class="es">la primera comida</em>, <em class="es">los primeros churros</em>.</p>`},
+  {h:'Как описать еду',html:`<p><em class="es">El chocolate es espeso y caliente.</em></p><p><em class="es">Los churros son ricos y dulces.</em></p>
+   <p class="note">Прилагательное согласуется со словом: <b>chocolate</b> мужской род, один; <b>churros</b> мужской род, много; <b>la merienda</b> женский род.</p>`},
+  {h:'Фразы для статьи',html:`<p><em class="es">En España, las chocolaterías son…</em></p><p><em class="es">Hay tres momentos…</em></p><p><em class="es">El primer momento es…</em></p><p><em class="es">El mejor momento es…</em></p>`}
+ ],
+ words:[['los churros','чуррос'],['el chocolate','горячий шоколад'],['la chocolatería','шоколадная'],['la churrería','где делают чуррос'],['el churrero','мастер чуррос'],['la merienda','полдник'],['el amanecer','рассвет'],['la leche','молоко'],['las galletas','печенье'],['el pan con chocolate','хлеб с шоколадом'],['el yogur','йогурт'],['el plátano','банан'],['el zumo de naranja','апельсиновый сок'],['los cereales','хлопья'],['espeso','густой'],['caliente','горячий'],['dulce','сладкий'],['rico','вкусный'],['amargo','горький'],['ligero','лёгкий']],
+ ex:[
+  {type:'order',title:'Слова из слогов',instr:'Как в тетради: собери слово из слогов.',join:true,items:[
+   {s:'chu|rros',ru:'чуррос'},{s:'chu|rre|ro',ru:'мастер чуррос'},{s:'chu|rre|rí|a',ru:'где делают чуррос'}]},
+  {type:'match',title:'Порядковые числа',instr:'Соедини.',pairs:[['1º','primero'],['2º','segundo'],['3º','tercero'],['4º','cuarto'],['5º','quinto'],['10º','décimo']]},
+  {type:'choice',title:'Primer или primero?',instr:'Выбери нужную форму.',items:[
+   {q:'El ___ chocolate de la mañana es rico.',o:['primero','primer','primera'],a:'primer'},
+   {q:'La ___ comida del día es la merienda.',o:['tercer','tercera','tercero'],a:'tercera'},
+   {q:'Elijo el ___ plato del segundo menú.',o:['tercer','tercera','terceros'],a:'tercer'},
+   {q:'Son los ___ churros que come mi amiga.',o:['primer','primeras','primeros'],a:'primeros'}]},
+  {type:'choice',title:'Опиши шоколад и чуррос',instr:'Выбери прилагательное с правильным окончанием.',items:[
+   {q:'El chocolate es ___.',o:['espeso','espesos','espesa'],a:'espeso'},
+   {q:'Los churros son ___.',o:['rico','ricos','rica'],a:'ricos'},
+   {q:'La merienda es ___.',o:['deliciosa','delicioso','deliciosos'],a:'deliciosa'},
+   {q:'Las galletas son ___.',o:['dulce','dulces','dulcas'],a:'dulces'}]},
+  {type:'order',title:'Змейка из слов',instr:'Собери фразу из видео. Перетаскивай слова в строку в правильном порядке (или просто нажимай на них).',items:[
+   {s:'Las churrerías son una institución en España.',ru:'Чуррерии в Испании это целая традиция.'},
+   {s:'El primer momento es el amanecer.',ru:'Первый момент это рассвет.'}]},
+  {type:'translate',title:'Переведи с русского',instr:'Напиши фразу по-испански.',items:[
+   {q:'Я обожаю чуррос.',a:['Me encantan los churros']},
+   {q:'Шоколад густой и горячий.',a:['El chocolate es espeso y caliente']},
+   {q:'Первый момент — рассвет.',a:['El primer momento es el amanecer']},
+   {q:'Мой любимый полдник — хлеб с шоколадом.',a:['Mi merienda preferida es el pan con chocolate','Mi merienda favorita es el pan con chocolate']}]},
+  {type:'choice',title:'Итоговая проверка',instr:'Всё вместе: семья, мой день, праздники и churros.',items:[
+   {q:'Mi hermana ___ doce años.',o:['es','tiene','son'],a:'tiene'},
+   {q:'A mí me ___ los churros.',o:['encanta','encantan'],a:'encantan'},
+   {q:'Nosotros ___ levantarnos temprano.',o:['solemos','suelemos','suelen'],a:'solemos'},
+   {q:'Yo ___ a las ocho.',o:['me despierto','despierto','se despierta'],a:'me despierto'},
+   {q:'El 6 de enero llegan los ___.',o:['Reyes Magos','campanadas','bombos'],a:'Reyes Magos'},
+   {q:'Es la ___ vez que como roscón.',o:['primer','primera','primero'],a:'primera'},
+   {q:'Hablamos de ___ abuela.',o:['nuestro','nuestra','nuestras'],a:'nuestra'},
+   {q:'7:30. Son las siete y ___.',o:['cuarto','media','menos'],a:'media'}]},
+  {type:'write',title:'Мини-проект: статья о шоколадных',instr:'Напиши для туристов 4 фразы о шоколадных в Испании. Нажимай подсказки.',starters:['En España, las chocolaterías son ','Hay tres momentos: ','El primer momento es ','El segundo momento es ','El tercer momento es ','El mejor momento es ','El chocolate es ','Los churros son '],min:4}
+ ]}
+];
+
+/* ---------- state ---------- */
+const KEY='atitetoca-v2';
+let done={};
+try{done=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){done={}}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(done))}catch(e){}};
+
+/* ---------- speech ---------- */
+let voice=null,esVoices=[];
+const vScore=v=>{let s=0;const n=v.name;
+  if(/natural|neural|online|premium|enhanced|mejorad/i.test(n))s+=6;
+  if(/google/i.test(n))s+=4;
+  if(/m[oó]nica|paulina|marisol|elvira|helena|laura|sabina|dalia|elena|ximena|alvaro|jorge/i.test(n))s+=3;
+  if(v.lang==='es-ES'||v.lang==='es_ES')s+=2;
+  if(/eloquence|grandma|grandpa|rocko|shelley|flo|reed|sandy|eddy|bad news|bells|bubbles|jester|whisper|zarvox|trinoids|organ|cellos|superstar|wobble|boing|albert|fred|junior|ralph/i.test(n))s-=10;
+  return s};
+function pickVoice(){try{
+  esVoices=speechSynthesis.getVoices().filter(x=>x.lang&&/^es/i.test(x.lang)).sort((a,b)=>vScore(b)-vScore(a));
+  let saved=null;try{saved=localStorage.getItem('atitetoca-voice')}catch(e){}
+  voice=esVoices.find(v=>v.name===saved)||esVoices[0]||null;
+  const sel=document.getElementById('voice-sel');if(!sel)return;
+  sel.innerHTML='';esVoices.forEach(v=>{const o=document.createElement('option');o.value=v.name;o.textContent=v.name.replace(/Microsoft |Google /,'')+' ('+v.lang+')';if(voice&&v.name===voice.name)o.selected=true;sel.append(o)});
+  document.getElementById('voicebar').hidden=!esVoices.length;
+}catch(e){}}
+let stopStory=null;
+function utt(t){const u=new SpeechSynthesisUtterance(t);u.lang=voice?voice.lang:'es-ES';if(voice)u.voice=voice;u.rate=.9;return u}
+function spk(t){return el('button',{class:'say inline',type:'button','aria-label':'Послушать: '+t,title:'Послушать',html:SPK,onclick:e=>{e.stopPropagation();say(t)}})}
+function say(t){try{if(stopStory)stopStory();speechSynthesis.cancel();speechSynthesis.speak(utt(t))}catch(e){}}
+document.getElementById('voice-sel').addEventListener('change',e=>{voice=esVoices.find(v=>v.name===e.target.value)||voice;try{localStorage.setItem('atitetoca-voice',voice.name)}catch(err){}say('Hola, me llamo Lucía y tengo once años.')});
+document.getElementById('voice-test').addEventListener('click',()=>say('Hola, me llamo Lucía y tengo once años.'));
+try{pickVoice();speechSynthesis.onvoiceschanged=pickVoice}catch(e){}
+
+/* ---------- helpers ---------- */
+const el=(tag,attrs={},...kids)=>{const n=document.createElement(tag);for(const[k,v]of Object.entries(attrs)){if(k==='class')n.className=v;else if(k==='html')n.innerHTML=v;else if(k.startsWith('on'))n.addEventListener(k.slice(2),v);else n.setAttribute(k,v)}for(const c of kids)if(c!=null)n.append(c);return n};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const loose=s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[¿?¡!.,]/g,'').replace(/\s+/g,' ').trim();
+const strict=s=>s.toLowerCase().replace(/\s+/g,' ').trim();
+
+let current=LESSONS[0].id;
+
+const INFO=['story','cards','phrases'];
+const tasks=L=>L.ex.filter(x=>!INFO.includes(x.type));
+const exKey=(L,ex)=>L.id+'|'+ex.title;
+function lessonStars(L){return tasks(L).filter(ex=>done[exKey(L,ex)]).length}
+
+function renderTabs(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  LESSONS.forEach((L,i)=>{
+    nav.append(el('button',{class:'tab',role:'tab','aria-selected':String(L.id===current),onclick:()=>{current=L.id;try{history.replaceState(null,'','#'+L.id)}catch(e){}renderAll();window.scrollTo({top:0})}},
+      el('small',{},`Занятие ${i+1} · ${L.short}`),el('b',{},L.title),el('span',{class:'st'},`★ ${lessonStars(L)} из ${tasks(L).length}`)));
+  });
+}
+
+function complete(L,ex,card){
+  const k=exKey(L,ex);card.classList.add('done');const jb=document.querySelector('.jb[data-go="'+card.id+'"]');if(jb)jb.classList.add('done');
+  if(!done[k]){done[k]=1;save();renderTabs();updateMeter(L)}
+}
+function updateMeter(L){
+  const m=document.getElementById('meter');if(m)m.style.width=(100*lessonStars(L)/tasks(L).length)+'%';
+  const b=document.getElementById('banner');if(b)b.hidden=lessonStars(L)<tasks(L).length;
+}
+
+/* ---------- exercise renderers ---------- */
+function exChoice(ex,finish){
+  const box=el('div');let left=ex.items.length;
+  ex.items.forEach(it=>{
+    const fb=el('div',{class:'fb'});
+    const opts=el('div',{class:'opts'});
+    let solved=false;
+    it.o.forEach(o=>opts.append(el('button',{class:'opt',type:'button',onclick:e=>{
+      if(solved)return;const b=e.currentTarget;
+      if(b.classList.contains('bad')){b.classList.remove('bad');fb.className='fb';fb.textContent='';return}
+      opts.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad'));
+      if(o===it.a){solved=true;b.classList.add('ok');fb.className='fb ok';fb.textContent=it.n?'Верно! '+it.n:'Верно!';
+        fb.append(spk(/^(V|F|Sí|No)$/.test(o)?it.q:it.q.replace('___',o)));if(--left===0)finish()}
+      else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');fb.className='fb bad';fb.textContent='Не совсем. Нажми ещё раз, чтобы стереть, или выбери другой ответ.'}
+    }},o)));
+    box.append(el('div',{class:'row'},el('div',{class:'q'},it.q),opts,fb));
+  });
+  return box;
+}
+
+function exType(ex,finish){
+  const box=el('div');const inputs=[];
+  const tr=ex.type==='translate';
+  ex.items.forEach((it,idx)=>{
+    const inp=el('input',{class:'blank'+(it.s?' short':'')+(tr?' wide':''),id:`in-${ex._id}-${idx}`,autocomplete:'off',autocapitalize:'sentences',spellcheck:'false','aria-label':'ответ',placeholder:tr?'Escribe en español…':''});
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')check()});
+    inp.addEventListener('input',()=>inp.classList.remove('bad'));
+    const fb=el('div',{class:'fb'});
+    inputs.push({inp,fb,it,tries:0});
+    if(tr){box.append(el('div',{class:'row'},el('div',{class:'ru-q'},it.q),inp,fb));return}
+    const [a,b]=it.q.split('___');
+    box.append(el('div',{class:'row'},el('div',{class:'q'},a,inp,b||'',it.h?el('span',{class:'hint'},` (${it.h})`):null),fb));
+  });
+  function check(){
+    let all=true;
+    inputs.forEach(o=>{
+      if(o.inp.disabled)return;
+      const v=o.inp.value;
+      if(o.wrong!==undefined&&v===o.wrong){o.inp.value='';o.inp.classList.remove('bad');o.wrong=undefined;o.fb.className='fb';if(o.tries<2)o.fb.textContent='Попробуй снова.';all=false;return}
+      if(!v.trim()){all=false;return}
+      const nopunct=x=>strict(x).replace(/[¿?¡!.,]/g,'').trim();
+      const hit=o.it.a.find(x=>nopunct(x)===nopunct(v));
+      const near=!hit&&o.it.a.find(x=>loose(x)===loose(v));
+      if(hit){o.inp.classList.remove('bad');o.inp.classList.add('ok');o.inp.disabled=true;
+        o.fb.className='fb ok';o.fb.textContent='';}
+      else if(near){all=false;o.wrong=v;o.inp.classList.add('bad');o.fb.className='fb bad';
+        o.fb.textContent='Почти! Проверь ударение (á, é, í, ó, ú, ñ). Нажми «Проверить» ещё раз, чтобы стереть.';}
+      else{all=false;o.tries++;o.wrong=v;o.inp.classList.add('bad');o.fb.className='fb bad';
+        o.fb.textContent=o.tries>=2?`Правильный ответ: ${o.it.a[0]}. Впиши его.`:'Не совсем. Нажми «Проверить» ещё раз, чтобы стереть, и попробуй снова.'}
+    });
+    if(all&&inputs.every(o=>o.inp.disabled))finish();
+  }
+  box.append(el('div',{class:'actions'},el('button',{class:'btn',type:'button',onclick:check},'Проверить')));
+  return box;
+}
+
+function exMatch(ex,finish){
+  const L=el('div',{class:'col'}),R=el('div',{class:'col'});let sel=null,left=ex.pairs.length;
+  const lefts=shuffle(ex.pairs.map((p,i)=>({t:p[0],i}))),rights=shuffle(ex.pairs.map((p,i)=>({t:p[1],i})));
+  const clearBad=()=>R.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad'));
+  lefts.forEach(o=>{const b=el('button',{class:'chip',type:'button',onclick:()=>{if(b.classList.contains('ok'))return;clearBad();
+    L.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');sel={b,i:o.i}}},o.t);L.append(b)});
+  rights.forEach(o=>{const b=el('button',{class:'chip',type:'button',onclick:()=>{if(b.classList.contains('bad')){b.classList.remove('bad');return}
+    if(!sel||b.classList.contains('ok'))return;clearBad();
+    if(sel.i===o.i){sel.b.classList.remove('sel');sel.b.classList.add('ok');b.classList.add('ok');sel=null;if(--left===0)finish()}
+    else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad')}}},o.t);R.append(b)});
+  return el('div',{class:'match'},L,R);
+}
+
+function exOrder(ex,finish){
+  const box=el('div',{class:'order'});let left=ex.items.length;const resets=[];
+  ex.items.forEach(it=>{
+    const parts=ex.join?it.s.split('|'):it.s.split(' ');
+    const target=ex.join?parts.join(''):it.s;
+    const line=el('div',{class:'line'}),pool=el('div',{class:'pool'});
+    let solved=false;const fb=el('div',{class:'fb'});
+    const changed=()=>{line.classList.remove('bad');fb.className='fb';fb.textContent='';
+      if(!pool.children.length){const got=[...line.children].map(x=>x.textContent).join(ex.join?'':' ');
+        if(got===target){solved=true;line.classList.add('ok');line.append(spk(target));fb.className='fb ok';fb.textContent='Верно!';if(--left===0)finish()}
+        else{void line.offsetWidth;line.classList.add('bad');fb.className='fb bad';fb.textContent='Не совсем. Нажми «Проверить» ещё раз, чтобы стереть, и собери снова.'}}};
+    resets.push(()=>{if(solved||!line.classList.contains('bad'))return;
+      shuffle([...line.children]).forEach(t=>pool.append(t));line.classList.remove('bad');fb.className='fb';fb.textContent='Попробуй снова.'});
+    const mk=(t)=>{const b=el('button',{class:'tok'+(ex.join?' sy':''),type:'button',onclick:e=>{
+      if(solved||e.detail!==0)return; (b.parentNode===pool?line:pool).append(b);changed()}},t);
+      b.addEventListener('pointerdown',e=>{
+        if(solved||e.button>0)return;e.preventDefault();
+        const sx=e.clientX,sy=e.clientY;let ghost=null;
+        const move=ev=>{
+          if(!ghost){if(Math.hypot(ev.clientX-sx,ev.clientY-sy)<6)return;
+            ghost=b.cloneNode(true);ghost.classList.add('drag-ghost');document.body.append(ghost);b.classList.add('dragging')}
+          ghost.style.left=ev.clientX+'px';ghost.style.top=ev.clientY+'px'};
+        const up=ev=>{
+          window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up);
+          if(!ghost){(b.parentNode===pool?line:pool).append(b);changed();return}
+          ghost.remove();b.classList.remove('dragging');
+          const hit=document.elementFromPoint(ev.clientX,ev.clientY);
+          const zone=hit&&hit.closest('.line,.pool');
+          if(zone===line||zone===pool){
+            const before=[...zone.children].filter(c=>c!==b).find(c=>{const r=c.getBoundingClientRect();
+              return ev.clientY<r.top||(ev.clientY<=r.bottom&&ev.clientX<r.left+r.width/2)});
+            zone.insertBefore(b,before||null)}
+          changed()};
+        window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up);
+      });
+      return b};
+    let sh=shuffle(parts);if(parts.length>1)while(sh.join()===parts.join())sh=shuffle(parts);
+    sh.forEach(t=>pool.append(mk(t)));
+    box.append(el('div',{class:'order-item'},el('div',{class:'ru'},it.ru),line,pool,fb));
+  });
+  box.append(el('div',{class:'actions'},el('button',{class:'btn',type:'button',onclick:()=>resets.forEach(f=>f())},'Проверить')));
+  return box;
+}
+
+function exWrite(ex,finish,isDone){
+  const ta=el('textarea',{id:'ta-'+ex._id,placeholder:'Escribe aquí…'});
+  try{ta.value=localStorage.getItem('ta-'+ex._id)||''}catch(e){}
+  ta.addEventListener('input',()=>{try{localStorage.setItem('ta-'+ex._id,ta.value)}catch(e){}});
+  const st=el('div',{class:'starters'});
+  ex.starters.forEach(s=>st.append(el('button',{type:'button',onclick:()=>{ta.value+=(ta.value&&!ta.value.endsWith('\n')?'\n':'')+s;ta.focus();ta.dispatchEvent(new Event('input'))}},s.trim()+'…')));
+  const fb=el('div',{class:'fb'});
+  const btn=el('button',{class:'btn',type:'button',onclick:()=>{
+    const n=ta.value.split(/[\n.!?]+/).filter(x=>x.trim().split(/\s+/).length>=3).length;
+    if(n>=ex.min){fb.className='fb ok';fb.textContent='¡Muy bien! Прочитай свои фразы вслух или покажи их взрослому.';finish()}
+    else{fb.className='fb bad';fb.textContent=`Пока фраз: ${n}. Нужно ${ex.min}, в каждой хотя бы 3 слова.`}}},'Готово');
+  const listen=el('button',{class:'btn ghost',type:'button',onclick:()=>say(ta.value)},'Послушать мой текст');
+  return el('div',{},st,ta,el('div',{class:'actions'},btn,listen),fb);
+}
+
+const R={choice:exChoice,type:exType,translate:exType,match:exMatch,order:exOrder,write:exWrite};
+
+const PLAY='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>';
+const STOP='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+function flashGrid(words){
+  const w=el('div',{class:'words'});
+  words.forEach(([es,ru])=>{
+    const c=el('div',{class:'flash',role:'button',tabindex:'0','aria-label':es},el('span',{class:'es'},es),el('span',{class:'ru'},ru));
+    const flip=()=>c.classList.toggle('open');
+    c.addEventListener('click',flip);c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();flip()}});
+    c.append(el('button',{class:'say',type:'button','aria-label':'Послушать '+es,html:SPK,onclick:e=>{e.stopPropagation();say(es.replace(/\s*\(.*?\)/g,''))}}));
+    w.append(c);
+  });
+  return w;
+}
+function phraseCard(t){
+  const c=el('section',{class:'card story'},el('h3',{},t.title),el('p',{class:'instr'},t.instr));
+  const list=el('ol',{class:'phrases'});
+  t.items.forEach(it=>{
+    const li=el('li',{tabindex:'0',role:'button'},el('span',{class:'es'},it.s),el('span',{class:'ru'},it.ru));
+    const flip=()=>li.classList.toggle('open');
+    li.addEventListener('click',flip);li.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();flip()}});
+    li.append(spk(it.s));list.append(li);
+  });
+  c.append(list,el('div',{class:'actions'},el('button',{class:'btn ghost',type:'button',onclick:()=>list.querySelectorAll('li').forEach(x=>x.classList.add('open'))},'Показать все переводы'),
+    el('button',{class:'btn ghost',type:'button',onclick:()=>list.querySelectorAll('li').forEach(x=>x.classList.remove('open'))},'Скрыть переводы')));
+  return c;
+}
+function storyCard(t){
+  const c=el('section',{class:'card story'},el('h3',{},'Текст '+(t._n||'')+': '+t.title));
+  const spans=[];
+  const main=el('button',{class:'btn',type:'button'});
+  const again=el('button',{class:'btn ghost',type:'button'},'С начала');
+  c.append(el('div',{class:'player'},main,again));
+  t.paras.forEach(p=>{const para=el('p');
+    (p.match(/[^.!?…]+[.!?…»]*\s*/g)||[p]).forEach(x=>{const sp=el('span',{class:'snt'},x);spans.push(sp);para.append(sp)});
+    c.append(para)});
+  if(t.src)c.append(el('p',{class:'gloss'},t.src));
+  c.append(el('p',{class:'gloss'},t.gloss));
+  let idx=0,playing=false;
+  const mark=()=>spans.forEach((s,i)=>s.classList.toggle('cur',(playing||idx>0)&&i===idx));
+  const label=()=>{main.innerHTML=playing?STOP+'Стоп':PLAY+(idx>0?'Продолжить':'Слушать текст');mark()};
+  const stop=()=>{playing=false;if(stopStory===stop)stopStory=null;label()};
+  const next=()=>{
+    if(!playing)return;
+    if(idx>=spans.length){idx=0;stop();return}
+    mark();const u=utt(spans[idx].textContent.trim());
+    u.onend=()=>{if(!playing)return;idx++;next()};
+    try{speechSynthesis.speak(u)}catch(e){stop()}};
+  const play=()=>{if(stopStory)stopStory();try{speechSynthesis.cancel()}catch(e){}playing=true;stopStory=stop;label();next()};
+  main.addEventListener('click',()=>{if(playing){stop();try{speechSynthesis.cancel()}catch(e){}}else play()});
+  again.addEventListener('click',()=>{idx=0;play()});
+  spans.forEach((sp,i)=>sp.addEventListener('dblclick',()=>{idx=i;play()}));
+  label();
+  return c;
+}
+
+/* ---------- lesson ---------- */
+function renderLesson(){
+  const L=LESSONS.find(x=>x.id===current);const main=document.getElementById('lesson');main.innerHTML='';
+  main.append(el('div',{class:'lesson-head'},el('h2',{},L.title),el('span',{class:'pages'},L.pages)));
+  main.append(el('div',{class:'meter'},el('i',{id:'meter'})));
+  const jump=[['Правило','go-rule','t'],['Слова','go-words','t']];const jumpBar=el('nav',{class:'jump','aria-label':'Перейти к упражнению'});main.append(jumpBar);
+
+  main.append(el('div',{class:'sec-title',id:'go-rule'},'Правило'));
+  const rules=el('div',{class:'rules'});L.rules.forEach(r=>rules.append(el('div',{class:'card'},el('h3',{},r.h),el('div',{html:r.html}))));main.append(rules);
+
+  main.append(el('div',{class:'sec-title',id:'go-words'},'Слова'));
+  main.append(el('p',{class:'hint-line'},'Сначала скажи перевод сама, потом нажми на карточку и проверь себя.'));
+  main.append(flashGrid(L.words));
+
+  main.append(el('div',{class:'sec-title',id:'go-ex'},'Упражнения'));
+  let n=0,tn=0;
+  L.ex.forEach((ex,i)=>{
+    ex._id=L.id+'-'+i;
+    if(ex.type==='story'){ex._n=++tn;const sc=storyCard(ex);sc.id='go-t'+tn;jump.push(['Текст '+tn,sc.id,'t']);main.append(sc);return}
+    if(ex.type==='cards'){const h=el('div',{class:'sec-title',id:'go-c'+i},ex.title);jump.push(['Слова','go-c'+i,'t']);main.append(h);
+      main.append(el('p',{class:'hint-line'},(ex.src?ex.src+'. ':'')+'Сначала выучи слова: скажи перевод сама, потом нажми на карточку и проверь себя.'));
+      main.append(flashGrid(ex.words));return}
+    if(ex.type==='phrases'){const pc=phraseCard(ex);pc.id='go-p'+i;jump.push(['Фразы',pc.id,'t']);main.append(pc);return}
+    const num=++n;const key=exKey(L,ex);
+    const card=el('section',{class:'card ex'+(done[key]?' done':''),id:'go-e'+num});jump.push([String(num),card.id,done[key]?'d':'']);
+    card.append(el('div',{class:'ex-head'},el('h3',{},`${num}. ${ex.title}`),el('span',{class:'star','aria-label':done[key]?'звезда получена':'звезды пока нет'},'★')));
+    card.append(el('p',{class:'instr'},ex.instr));
+    card.append(R[ex.type](ex,()=>complete(L,ex,card)));
+    main.append(card);
+  });
+  jump.forEach(([label,id,k])=>jumpBar.append(el('button',{type:'button',class:'jb'+(k==='t'?' txt':'')+(k==='d'?' done':''),'data-go':id,onclick:()=>{const t=document.getElementById(id);if(t)t.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'})}},label)));
+  const last=LESSONS.indexOf(L)===LESSONS.length-1;
+  main.append(el('div',{class:'done-banner',id:'banner',hidden:''},last?'¡Enhorabuena! Все звёзды собраны. Теперь можно открыть тетрадь и сделать с. 16–33 самой.':'¡Fenomenal! Все звёзды этого занятия собраны. Переходи к следующему.'));
+  updateMeter(L);
+}
+
+function renderAll(){renderTabs();renderLesson()}
+
+document.getElementById('reset').addEventListener('click',e=>{
+  const b=e.currentTarget;
+  if(b.dataset.confirm){done={};save();try{Object.keys(localStorage).filter(k=>k.startsWith('ta-')).forEach(k=>localStorage.removeItem(k))}catch(e){}b.textContent='Начать всё заново';delete b.dataset.confirm;renderAll()}
+  else{b.dataset.confirm='1';b.textContent='Точно стереть все звёзды? Нажми ещё раз'}
+});
+
+const h=(location.hash||'').slice(1);if(LESSONS.some(L=>L.id===h))current=h;
+renderAll();
+const toTop=document.getElementById('totop');
+const onScroll=()=>toTop.classList.toggle('off',window.scrollY<600);
+window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+toTop.addEventListener('click',()=>{const r=matchMedia('(prefers-reduced-motion: reduce)').matches;window.scrollTo({top:0,behavior:r?'auto':'smooth'})});
+</script>
+
+</body>
+</html>

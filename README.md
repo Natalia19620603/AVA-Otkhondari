@@ -2,4 +2,4 @@
 
 Интерактивные упражнения по испанскому.
 
-Открыть: https://natalia19620603.github.io/ava-otkhondari/
+Открыть: https://natalia19620603.github.io/AVA-Otkhondari/

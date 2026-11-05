@@ -74,14 +74,18 @@ header p{margin:6px 0 0;color:var(--muted);max-width:62ch}
 .score{font-weight:800;color:var(--sun);font-variant-numeric:tabular-nums}
 .done{background:var(--sun-soft);border-radius:12px;padding:12px 14px;font-weight:700;margin-top:12px}
 /* list */
-table{border-collapse:collapse;width:100%}
-td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
-td.es{font-weight:800;color:var(--tile);width:45%}
-td.es b{color:var(--sun)}
-td.ru{color:var(--muted)}
-td.n{width:2.2em;color:var(--muted);font-variant-numeric:tabular-nums}
-ul.tips{margin:0;padding-left:20px}
-ul.tips li{margin:4px 0}
+.gaps{margin:0;padding-left:28px}
+.gaps li{padding:12px 0;border-bottom:1px dashed var(--line)}
+.gaps li:last-child{border-bottom:none}
+.gaps .line{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.gaps .txt{flex:1 1 260px;min-width:0;font-size:18px;font-weight:600;line-height:1.9}
+.gap{display:inline-block;min-width:5.5em;border-bottom:2px solid var(--tile);text-align:center;margin:0 2px;line-height:1.3}
+.gap .a{display:none;color:var(--tile);font-weight:800}
+.gaps li.show .gap .a{display:inline}
+.gaps li.show .gap{border-bottom-color:var(--sun);background:var(--sun-soft);border-radius:6px 6px 0 0;padding:0 4px}
+.gap-hint{color:var(--muted);font-weight:600;font-size:15px}
+.ans{border:2px solid var(--tile);background:transparent;color:var(--tile);border-radius:10px;padding:5px 14px;font-weight:800;flex:none}
+.gaps li.show .ans{background:var(--tile);color:#fff}
 .voicebar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px;font-size:15px;font-weight:600}
 .voicebar select{font:inherit;max-width:100%;min-width:0;padding:6px 8px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
 .voicebar .btn{padding:6px 12px}
@@ -121,18 +125,12 @@ ul.tips li{margin:4px 0}
   <div class="sec-title">Тест</div>
   <div class="card" id="quiz"></div>
 
-  <div class="sec-title">Все фразы блока</div>
-  <div class="card"><table id="list"></table></div>
-
-  <div class="sec-title">Как учить</div>
+  <div class="sec-title">Вставь слово</div>
   <div class="card">
-    <ul class="tips">
-      <li>Каждый день по одному блоку, читать вслух.</li>
-      <li>Закрыть испанский и переводить с русского обратно (карточки выше как раз для этого).</li>
-      <li>Рисовать к каждой фразе маленькую картинку: виноград, корону, барабан.</li>
-      <li>Запоминалка: <b>Gordo</b> значит «толстый»: El Gordo — самый «толстый», главный выигрыш. <b>Bombo</b> звучит как «бум-бум», барабан.</li>
-    </ul>
+    <p class="hint">Вставь в пропуск испанское слово. Подсказка по-русски стоит в скобках. Нажми «Ответ», чтобы проверить, и ещё раз, чтобы спрятать.</p>
+    <ol class="gaps" id="list"></ol>
   </div>
+
 </div>
 
 <script>
@@ -148,7 +146,7 @@ const BLOCKS=[
   ['**Nochevieja** es el 31 de diciembre.','Новогодняя ночь — 31 декабря'],
   ['Vamos a **la Puerta del Sol** en Madrid.','Идём на площадь Пуэрта-дель-Соль в Мадриде'],
   ['Miramos **el reloj** a las doce.','Смотрим на часы в полночь'],
-  ['**Las campanas suenan**: ¡dong, dong!','Колокола звенят'],
+  ['**Las campanas suenan** a medianoche.','Колокола звенят в полночь'],
   ['Con **las campanadas** comemos **las uvas**.','Под бой курантов едим виноград'],
   ['Doce uvas, doce deseos para **el Año Nuevo**.','12 виноградин, 12 желаний на Новый год'],
   ['¡Vamos a **celebrar** con **alegría**!','Празднуем с радостью!']]},
@@ -161,6 +159,8 @@ const BLOCKS=[
   ['Comemos **el roscón** con **una corona**.','Едим праздничный пирог-кольцо с короной'],
   ['También comemos **turrón**.','Ещё едим туррон, нугу с миндалём']]}
 ];
+const HINTS=[["«Толстяк», главный выигрыш"], ["лотерейный билет"], ["розыгрыш"], ["барабаны"], ["поют"], ["выиграть приз"], ["новогодняя ночь"], ["площадь Пуэрта-дель-Соль"], ["часы"], ["колокола звенят"], ["бой курантов", "виноград"], ["Новый год"], ["праздновать", "радость"], ["письмо", "короли-волхвы"], ["подарки"], ["шествие"], ["парад"], ["волшебство"], ["пирог-кольцо", "корона"], ["туррон, нуга"]];
+BLOCKS.flatMap(b=>b.items).forEach((it,i)=>it.push(HINTS[i]));
 BLOCKS.push({id:'all',name:'⭐ Все 20',sub:'Повторение',items:BLOCKS.flatMap(b=>b.items)});
 
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -232,7 +232,11 @@ function renderQ(){
   });
 }
 function renderList(){
-  $('list').innerHTML=BLOCKS[cur].items.map(([es,ru],i)=>`<tr><td class="n">${i+1}.</td><td class="es">${bold(es)}</td><td class="ru">${esc(ru)}</td></tr>`).join('');
+  const ol=$('list');
+  ol.innerHTML=BLOCKS[cur].items.map(([es,ru,h])=>{let k=0;
+    const txt=esc(es).replace(/\*\*(.+?)\*\*/g,(m,w)=>`<span class="gap"><span class="a">${w}</span></span> <span class="gap-hint">(${esc(h[k++]||'')})</span>`);
+    return `<li><div class="line"><span class="txt">${txt}</span><button class="ans" type="button" aria-pressed="false">Ответ</button></div></li>`}).join('');
+  ol.querySelectorAll('li').forEach((li,i)=>{const b=li.querySelector('.ans');b.onclick=()=>{const on=li.classList.toggle('show');b.setAttribute('aria-pressed',on);if(on)say(plain(BLOCKS[cur].items[i][0]))}});
 }
 function renderAll(){renderTabs();renderCard();startQuiz();renderList()}
 renderAll();

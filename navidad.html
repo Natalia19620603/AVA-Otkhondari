@@ -82,6 +82,9 @@ td.ru{color:var(--muted)}
 td.n{width:2.2em;color:var(--muted);font-variant-numeric:tabular-nums}
 ul.tips{margin:0;padding-left:20px}
 ul.tips li{margin:4px 0}
+.voicebar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px;font-size:15px;font-weight:600}
+.voicebar select{font:inherit;max-width:100%;min-width:0;padding:6px 8px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.voicebar .btn{padding:6px 12px}
 @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -92,6 +95,11 @@ ul.tips li{margin:4px 0}
   <header>
     <h1>Navidad y <span>Año Nuevo</span></h1>
     <p>20 фраз про Рождество и Новый год в Испании. Смотри на русскую фразу, вспомни испанскую и нажми на карточку, чтобы проверить себя. Кнопка со звуком читает фразу вслух.</p>
+    <div class="voicebar" id="voicebar">
+      <label for="voice-sel">Голос для озвучки:</label>
+      <select id="voice-sel"></select>
+      <button class="btn ghost" id="voice-test" type="button">Послушать</button>
+    </div>
     <a class="back" href="index.html">← Назад к урокам ¡A ti te toca!</a>
   </header>
 
@@ -122,7 +130,7 @@ ul.tips li{margin:4px 0}
       <li>Каждый день по одному блоку, читать вслух.</li>
       <li>Закрыть испанский и переводить с русского обратно (карточки выше как раз для этого).</li>
       <li>Рисовать к каждой фразе маленькую картинку: виноград, корону, барабан.</li>
-      <li>Запоминалка: <b>Gordo</b> значит «толстый», это самый толстый приз. <b>Bombo</b> звучит как «бум-бум», барабан.</li>
+      <li>Запоминалка: <b>Gordo</b> значит «толстый»: El Gordo — самый «толстый», главный выигрыш. <b>Bombo</b> звучит как «бум-бум», барабан.</li>
     </ul>
   </div>
 </div>
@@ -130,7 +138,7 @@ ul.tips li{margin:4px 0}
 <script>
 const BLOCKS=[
  {id:'gordo',name:'🎰 El Gordo',sub:'Лотерея',items:[
-  ['**El Gordo** es la lotería más grande de España.','«Толстяк» — самая большая лотерея Испании'],
+  ['**El Gordo** es el premio más grande de la lotería.','«Эль Гордо» («Толстяк») — главный выигрыш в лотерее'],
   ['Papá compra **un décimo**.','Папа покупает лотерейный билет, «десятую часть»'],
   ['**El sorteo** es el 22 de diciembre.','Розыгрыш 22 декабря'],
   ['Las bolas están en **los bombos**.','Шарики лежат в барабанах'],
@@ -160,10 +168,27 @@ const bold=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
 const plain=s=>s.replace(/\*\*/g,'');
 const SPK='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg>';
 
-let voice=null;
-function pickVoice(){try{const v=speechSynthesis.getVoices().filter(x=>/^es/i.test(x.lang));voice=v.find(x=>/es-ES/i.test(x.lang))||v[0]||null}catch(e){}}
+let voice=null,esVoices=[];
+const vScore=v=>{let s=0;const n=v.name;
+  if(/natural|neural|online|premium|enhanced|mejorad/i.test(n))s+=6;
+  if(/google/i.test(n))s+=4;
+  if(/m[oó]nica|paulina|marisol|elvira|helena|laura|sabina|dalia|elena|ximena|alvaro|jorge/i.test(n))s+=3;
+  if(v.lang==='es-ES'||v.lang==='es_ES')s+=2;
+  if(/eloquence|grandma|grandpa|rocko|shelley|flo|reed|sandy|eddy|bad news|bells|bubbles|jester|whisper|zarvox|trinoids|organ|cellos|superstar|wobble|boing|albert|fred|junior|ralph/i.test(n))s-=10;
+  return s};
+function pickVoice(){try{
+  esVoices=speechSynthesis.getVoices().filter(x=>x.lang&&/^es/i.test(x.lang)).sort((a,b)=>vScore(b)-vScore(a));
+  let saved=null;try{saved=localStorage.getItem('atitetoca-voice')}catch(e){}
+  voice=esVoices.find(v=>v.name===saved)||esVoices[0]||null;
+  const sel=document.getElementById('voice-sel');
+  sel.innerHTML='';esVoices.forEach(v=>{const o=document.createElement('option');o.value=v.name;o.textContent=v.name.replace(/Microsoft |Google /,'')+' ('+v.lang+')';if(voice&&v.name===voice.name)o.selected=true;sel.append(o)});
+  document.getElementById('voicebar').hidden=!esVoices.length;
+}catch(e){}}
+function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=voice?voice.lang:'es-ES';if(voice)u.voice=voice;u.rate=.9;speechSynthesis.speak(u)}catch(e){}}
+const TEST='¡Feliz Navidad y próspero Año Nuevo!';
+document.getElementById('voice-sel').addEventListener('change',e=>{voice=esVoices.find(v=>v.name===e.target.value)||voice;try{localStorage.setItem('atitetoca-voice',voice.name)}catch(err){}say(TEST)});
+document.getElementById('voice-test').addEventListener('click',()=>say(TEST));
 try{pickVoice();speechSynthesis.onvoiceschanged=pickVoice}catch(e){}
-function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='es-ES';if(voice)u.voice=voice;u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
 
 let cur=0,idx=0,order=[];
 const $=id=>document.getElementById(id);

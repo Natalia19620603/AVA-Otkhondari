@@ -86,6 +86,12 @@ header p{margin:6px 0 0;color:var(--muted);max-width:62ch}
 .gap-hint{color:var(--muted);font-weight:600;font-size:15px}
 .ans{border:2px solid var(--tile);background:transparent;color:var(--tile);border-radius:10px;padding:5px 14px;font-weight:800;flex:none}
 .gaps li.show .ans{background:var(--tile);color:#fff}
+#choose .txt{font-size:18px;font-weight:600;line-height:1.9}
+#choose .tr{color:var(--muted);font-size:15px;margin:2px 0 10px}
+.opts4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (min-width:640px){.opts4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.opts4 .opt{text-align:center;overflow-wrap:anywhere;min-width:0}
+.opt:disabled{cursor:default}
 .voicebar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px;font-size:15px;font-weight:600}
 .voicebar select{font:inherit;max-width:100%;min-width:0;padding:6px 8px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
 .voicebar .btn{padding:6px 12px}
@@ -109,7 +115,19 @@ header p{margin:6px 0 0;color:var(--muted);max-width:62ch}
 
   <nav class="tabs" id="tabs" role="tablist"></nav>
 
-  <div class="sec-title">Карточки</div>
+  <div class="sec-title">1. Выбери слово</div>
+  <div class="card">
+    <p class="hint">Выбери из четырёх слов то, которое подходит в пропуск. Перевод фразы написан ниже.</p>
+    <ol class="gaps" id="choose"></ol>
+  </div>
+
+  <div class="sec-title">2. Вставь слово</div>
+  <div class="card">
+    <p class="hint">Вставь в пропуск испанское слово. Подсказка по-русски стоит в скобках. Нажми «Ответ», чтобы проверить, и ещё раз, чтобы спрятать.</p>
+    <ol class="gaps" id="list"></ol>
+  </div>
+
+  <div class="sec-title">3. Карточки</div>
   <div class="card">
     <p class="hint">Нажми на карточку, чтобы увидеть испанский. Попробуй сначала сказать вслух сама.</p>
     <div class="fc">
@@ -122,14 +140,8 @@ header p{margin:6px 0 0;color:var(--muted);max-width:62ch}
     </div>
   </div>
 
-  <div class="sec-title">Тест</div>
+  <div class="sec-title">4. Тест</div>
   <div class="card" id="quiz"></div>
-
-  <div class="sec-title">Вставь слово</div>
-  <div class="card">
-    <p class="hint">Вставь в пропуск испанское слово. Подсказка по-русски стоит в скобках. Нажми «Ответ», чтобы проверить, и ещё раз, чтобы спрятать.</p>
-    <ol class="gaps" id="list"></ol>
-  </div>
 
 </div>
 
@@ -238,7 +250,22 @@ function renderList(){
     return `<li><div class="line"><span class="txt">${txt}</span><button class="ans" type="button" aria-pressed="false">Ответ</button></div></li>`}).join('');
   ol.querySelectorAll('li').forEach((li,i)=>{const b=li.querySelector('.ans');b.onclick=()=>{const on=li.classList.toggle('show');b.setAttribute('aria-pressed',on);if(on)say(plain(BLOCKS[cur].items[i][0]))}});
 }
-function renderAll(){renderTabs();renderCard();startQuiz();renderList()}
+const ALLWORDS=[...new Set(BLOCKS[3].items.flatMap(([es])=>[...es.matchAll(/\*\*(.+?)\*\*/g)].map(m=>m[1])))];
+function renderChoose(){
+  const ol=$('choose');
+  ol.innerHTML=BLOCKS[cur].items.map(([es,ru])=>{
+    const words=[...es.matchAll(/\*\*(.+?)\*\*/g)].map(m=>m[1]),ans=words[0];
+    let first=true;
+    const txt=esc(es).replace(/\*\*(.+?)\*\*/g,(m,w)=>{if(first){first=false;return `<span class="gap"><span class="a">${w}</span></span>`}return w});
+    const opts=shuffle([ans,...shuffle(ALLWORDS.filter(w=>!words.includes(w))).slice(0,3)]);
+    return `<li><div class="txt">${txt}</div><div class="tr">${esc(ru)}</div><div class="opts4">${opts.map(o=>`<button class="opt" type="button" data-o="${esc(o)}">${esc(o)}</button>`).join('')}</div></li>`}).join('');
+  ol.querySelectorAll('li').forEach((li,i)=>{const es=BLOCKS[cur].items[i][0],ans=es.match(/\*\*(.+?)\*\*/)[1];
+    li.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      if(b.dataset.o===ans){b.classList.add('ok');li.classList.add('show');li.querySelectorAll('.opt').forEach(x=>x.disabled=true);say(plain(es))}
+      else{b.classList.add('no');b.disabled=true}
+    })});
+}
+function renderAll(){renderTabs();renderChoose();renderList();renderCard();startQuiz()}
 renderAll();
 </script>
 </body>

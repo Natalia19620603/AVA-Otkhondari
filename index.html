@@ -36,8 +36,8 @@ header h1{font-size:clamp(26px,6vw,40px);font-weight:700}
 header h1 span{color:var(--tile)}
 header p{margin:6px 0 0;color:var(--muted);max-width:60ch}
 
-.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding-block:16px}
-@media (max-width:760px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.tab:last-child{grid-column:span 2}}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding-block:16px}
+@media (max-width:760px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .tab{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
 .tab small{color:var(--muted);font-weight:600;font-size:13px}
 .tab b{font-family:var(--f-display);font-weight:500;font-size:15px;line-height:1.25}
@@ -157,19 +157,59 @@ footer button{background:none;border:none;color:var(--muted);text-decoration:und
 main [id^="go-"]{scroll-margin-top:12px}
 @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ---------- Navidad lesson ---------- */
+.nv-sub{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:4px 0 6px}
+@media (max-width:640px){.nv-sub{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.nv-sub button{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:8px 10px;text-align:left;min-width:0}
+.nv-sub b{display:block;font-family:var(--f-display);font-weight:500;font-size:14px;line-height:1.25}
+.nv-sub small{color:var(--muted);font-weight:600;font-size:13px}
+.nv-sub button[aria-pressed="true"]{border-color:var(--tile);background:var(--tile-soft)}
+.nv-gaps{margin:0;padding-left:28px}
+.nv-gaps li{padding:12px 0;border-bottom:1px dashed var(--line)}
+.nv-gaps li:last-child{border-bottom:none}
+.nv-line{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.nv-txt{flex:1 1 260px;min-width:0;font-size:18px;font-weight:600;line-height:1.9}
+.nv-gap{display:inline-block;min-width:5.5em;border-bottom:2px solid var(--tile);text-align:center;margin:0 2px;line-height:1.3}
+.nv-gap .a{display:none;color:var(--tile);font-weight:800}
+li.show .nv-gap .a{display:inline}
+li.show .nv-gap{border-bottom-color:var(--sun);background:var(--sun-soft);border-radius:6px 6px 0 0;padding:0 4px}
+.nv-hint{color:var(--muted);font-weight:600;font-size:15px}
+.nv-tr{color:var(--muted);font-size:15px;margin:2px 0 10px}
+.nv-ans{border:2px solid var(--tile);background:transparent;color:var(--tile);border-radius:10px;padding:5px 14px;font-weight:800;flex:none}
+li.show .nv-ans{background:var(--tile);color:#fff}
+.nv-opts4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (min-width:640px){.nv-opts4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.nv-opts4 .opt,.nv-q .opt{text-align:center;overflow-wrap:anywhere;min-width:0}
+.nv-q .opts{display:grid;gap:8px}
+.nv-q .opt{text-align:left}
+.opt:disabled{cursor:default}
+.nv-card{position:relative;box-sizing:border-box;width:100%;background:var(--card);border:2px solid var(--line);border-radius:16px;min-height:150px;padding:20px 52px 20px 20px;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:10px}
+.nv-card .ru{font-size:20px;font-weight:700}
+.nv-card .es{font-size:21px;color:var(--tile);font-weight:800;visibility:hidden}
+.nv-card .es b{color:var(--sun)}
+.nv-card .tap{color:var(--muted);font-size:14px}
+.nv-card.open{border-color:var(--sun)}
+.nv-card.open .es{visibility:visible}
+.nv-card.open .tap{display:none}
+.nv-card .say{top:10px;right:10px;width:36px;height:36px}
+.nv-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
+.nv-nav .btn:disabled{opacity:.4;cursor:default}
+.nv-count{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:700}
+.nv-qtext{font-size:19px;font-weight:700;margin:0 0 12px}
+.nv-score{font-weight:800;color:var(--sun);font-variant-numeric:tabular-nums}
+.nv-done{background:var(--sun-soft);border-radius:12px;padding:12px 14px;font-weight:700;margin-top:12px}
 </style>
 
 <div class="band" aria-hidden="true"></div>
 <div class="wrap">
   <header>
     <h1>¡A ti te <span>toca!</span></h1>
-    <p>Пять занятий, чтобы догнать класс по учебнику и тетради. За каждое выполненное упражнение получаешь звезду. Нажми на карточку, чтобы увидеть перевод, а на кнопку со звуком, чтобы услышать слово.</p>
+    <p>Пять занятий и праздничный урок, чтобы догнать класс по учебнику и тетради. За каждое выполненное упражнение получаешь звезду. Нажми на карточку, чтобы увидеть перевод, а на кнопку со звуком, чтобы услышать слово.</p>
     <div class="voicebar" id="voicebar">
       <label for="voice-sel">Голос для озвучки:</label>
       <select id="voice-sel"></select>
       <button class="btn ghost" id="voice-test" type="button">Послушать</button>
     </div>
-    <p style="margin:12px 0 0"><a href="navidad.html" style="color:var(--tile);font-weight:800">🎄 Новое: Navidad y Año Nuevo, 20 фраз с карточками и тестом →</a></p>
   </header>
   <nav class="tabs" id="tabs" role="tablist"></nav>
   <main id="lesson"><div class="done-banner">Если вы видите это сообщение вместо заданий, ваш браузер не смог запустить страницу. Откройте файл в Google Chrome, Microsoft Edge, Firefox или Safari: правой кнопкой мыши по файлу → «Открыть с помощью» → выберите браузер.</div></main>
@@ -574,7 +614,8 @@ const LESSONS=[
    {q:'Hablamos de ___ abuela.',o:['nuestro','nuestra','nuestras'],a:'nuestra'},
    {q:'7:30. Son las siete y ___.',o:['cuarto','media','menos'],a:'media'}]},
   {type:'write',title:'Мини-проект: статья о шоколадных',instr:'Напиши для туристов 4 фразы о шоколадных в Испании. Нажимай подсказки.',starters:['En España, las chocolaterías son ','Hay tres momentos: ','El primer momento es ','El segundo momento es ','El tercer momento es ','El mejor momento es ','El chocolate es ','Los churros son '],min:4}
- ]}
+ ]},
+{id:'navidad',short:'Праздники',title:'🎄 Navidad y Año Nuevo',pages:'20 фраз про Рождество и Новый год в Испании',custom:true,rules:[],words:[],ex:[]}
 ];
 
 /* ---------- state ---------- */
@@ -625,7 +666,7 @@ function renderTabs(){
   const nav=document.getElementById('tabs');nav.innerHTML='';
   LESSONS.forEach((L,i)=>{
     nav.append(el('button',{class:'tab',role:'tab','aria-selected':String(L.id===current),onclick:()=>{current=L.id;try{history.replaceState(null,'','#'+L.id)}catch(e){}renderAll();window.scrollTo({top:0})}},
-      el('small',{},`Занятие ${i+1} · ${L.short}`),el('b',{},L.title),el('span',{class:'st'},`★ ${lessonStars(L)} из ${tasks(L).length}`)));
+      el('small',{},L.custom?L.short:`Занятие ${i+1} · ${L.short}`),el('b',{},L.title),el('span',{class:'st'},L.custom?'4 задания · 20 фраз':`★ ${lessonStars(L)} из ${tasks(L).length}`)));
   });
 }
 
@@ -826,6 +867,7 @@ function storyCard(t){
 /* ---------- lesson ---------- */
 function renderLesson(){
   const L=LESSONS.find(x=>x.id===current);const main=document.getElementById('lesson');main.innerHTML='';
+  if(L.custom){renderNavidad(main,L);return}
   main.append(el('div',{class:'lesson-head'},el('h2',{},L.title),el('span',{class:'pages'},L.pages)));
   main.append(el('div',{class:'meter'},el('i',{id:'meter'})));
   const jump=[['Правило','go-rule','t'],['Слова','go-words','t']];const jumpBar=el('nav',{class:'jump','aria-label':'Перейти к упражнению'});main.append(jumpBar);
@@ -854,9 +896,112 @@ function renderLesson(){
     main.append(card);
   });
   jump.forEach(([label,id,k])=>jumpBar.append(el('button',{type:'button',class:'jb'+(k==='t'?' txt':'')+(k==='d'?' done':''),'data-go':id,onclick:()=>{const t=document.getElementById(id);if(t)t.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'})}},label)));
-  const last=LESSONS.indexOf(L)===LESSONS.length-1;
+  const last=LESSONS.indexOf(L)===LESSONS.filter(x=>!x.custom).length-1;
   main.append(el('div',{class:'done-banner',id:'banner',hidden:''},last?'¡Enhorabuena! Все звёзды собраны. Теперь можно открыть тетрадь и сделать с. 16–33 самой.':'¡Fenomenal! Все звёзды этого занятия собраны. Переходи к следующему.'));
   updateMeter(L);
+}
+
+/* ---------- Navidad lesson ---------- */
+const NV=[
+ {name:'🎰 El Gordo',sub:'Лотерея',items:[
+  ['**El Gordo** es el premio más grande de la lotería.','«Эль Гордо» («Толстяк») — главный выигрыш в лотерее',['«Толстяк», главный выигрыш']],
+  ['Papá compra **un décimo**.','Папа покупает лотерейный билет, «десятую часть»',['лотерейный билет']],
+  ['**El sorteo** es el 22 de diciembre.','Розыгрыш 22 декабря',['розыгрыш']],
+  ['Las bolas están en **los bombos**.','Шарики лежат в барабанах',['барабаны']],
+  ['Los niños **cantan** los números.','Дети поют номера',['поют']],
+  ['¡Quiero **ganar el premio**!','Хочу выиграть приз!',['выиграть приз']]]},
+ {name:'🕛 Nochevieja',sub:'31 декабря',items:[
+  ['**Nochevieja** es el 31 de diciembre.','Новогодняя ночь — 31 декабря',['новогодняя ночь']],
+  ['Vamos a **la Puerta del Sol** en Madrid.','Идём на площадь Пуэрта-дель-Соль в Мадриде',['площадь Пуэрта-дель-Соль']],
+  ['Miramos **el reloj** a las doce.','Смотрим на часы в полночь',['часы']],
+  ['**Las campanas suenan** a medianoche.','Колокола звенят в полночь',['колокола звенят']],
+  ['Con **las campanadas** comemos **las uvas**.','Под бой курантов едим виноград',['бой курантов','виноград']],
+  ['Doce uvas, doce deseos para **el Año Nuevo**.','12 виноградин, 12 желаний на Новый год',['Новый год']],
+  ['¡Vamos a **celebrar** con **alegría**!','Празднуем с радостью!',['праздновать','радость']]]},
+ {name:'👑 Los Reyes Magos',sub:'6 января',items:[
+  ['Escribo **la carta** a **los Reyes Magos**.','Пишу письмо Королям-волхвам',['письмо','короли-волхвы']],
+  ['Pido muchos **regalos**.','Прошу много подарков',['подарки']],
+  ['El 5 de enero hay **una Cabalgata**.','5 января шествие Королей',['шествие']],
+  ['**El desfile** tiene camellos y luces.','В параде верблюды и огни',['парад']],
+  ['¡Es pura **magia**!','Это настоящее волшебство!',['волшебство']],
+  ['Comemos **el roscón** con **una corona**.','Едим праздничный пирог-кольцо с короной',['пирог-кольцо','корона']],
+  ['También comemos **turrón**.','Ещё едим туррон, нугу с миндалём',['туррон, нуга']]]}
+];
+NV.push({name:'⭐ Все 20',sub:'Повторение',items:NV.flatMap(b=>b.items)});
+const nvEsc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nvBold=s=>nvEsc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+const nvPlain=s=>s.replace(/\*\*/g,'');
+const nvWords=es=>[...es.matchAll(/\*\*(.+?)\*\*/g)].map(m=>m[1]);
+const NV_ALL=[...new Set(NV[3].items.flatMap(([es])=>nvWords(es)))];
+let nvCur=0;
+
+function renderNavidad(main,L){
+  main.append(el('div',{class:'lesson-head'},el('h2',{},L.title),el('span',{class:'pages'},L.pages)));
+  const sub=el('div',{class:'nv-sub',role:'group','aria-label':'Блок фраз'});
+  NV.forEach((b,i)=>sub.append(el('button',{type:'button','aria-pressed':String(i===nvCur),onclick:()=>{nvCur=i;renderLesson()}},el('b',{},b.name),el('small',{},`${b.sub} · ${b.items.length}`))));
+  main.append(sub);
+  const items=NV[nvCur].items;
+
+  // 1. choose from 4
+  main.append(el('div',{class:'sec-title'},'1. Выбери слово'));
+  const c1=el('section',{class:'card'},el('p',{class:'instr'},'Выбери из четырёх слов то, которое подходит в пропуск. Перевод фразы написан ниже.'));
+  const ol1=el('ol',{class:'nv-gaps'});
+  items.forEach(([es,ru])=>{
+    const words=nvWords(es),ans=words[0];let first=true;
+    const txt=nvEsc(es).replace(/\*\*(.+?)\*\*/g,(m,w)=>{if(first){first=false;return `<span class="nv-gap"><span class="a">${w}</span></span>`}return w});
+    const li=el('li',{},el('div',{class:'nv-txt',html:txt}),el('div',{class:'nv-tr'},ru));
+    const opts=el('div',{class:'nv-opts4'});
+    shuffle([ans,...shuffle(NV_ALL.filter(w=>!words.includes(w))).slice(0,3)]).forEach(o=>{
+      const b=el('button',{class:'opt',type:'button'},o);
+      b.onclick=()=>{if(o===ans){b.classList.add('ok');li.classList.add('show');opts.querySelectorAll('.opt').forEach(x=>x.disabled=true);say(nvPlain(es))}
+        else{b.classList.add('bad');b.disabled=true}};
+      opts.append(b)});
+    li.append(opts);ol1.append(li)});
+  c1.append(ol1);main.append(c1);
+
+  // 2. fill in the blank with answer toggle
+  main.append(el('div',{class:'sec-title'},'2. Вставь слово'));
+  const c2=el('section',{class:'card'},el('p',{class:'instr'},'Вставь в пропуск испанское слово. Подсказка по-русски стоит в скобках. Нажми «Ответ», чтобы проверить, и ещё раз, чтобы спрятать.'));
+  const ol2=el('ol',{class:'nv-gaps'});
+  items.forEach(([es,ru,h])=>{let k=0;
+    const txt=nvEsc(es).replace(/\*\*(.+?)\*\*/g,(m,w)=>`<span class="nv-gap"><span class="a">${w}</span></span> <span class="nv-hint">(${nvEsc(h[k++]||'')})</span>`);
+    const li=el('li');const b=el('button',{class:'nv-ans',type:'button','aria-pressed':'false'},'Ответ');
+    b.onclick=()=>{const on=li.classList.toggle('show');b.setAttribute('aria-pressed',String(on));if(on)say(nvPlain(es))};
+    li.append(el('div',{class:'nv-line'},el('span',{class:'nv-txt',html:txt}),b));ol2.append(li)});
+  c2.append(ol2);main.append(c2);
+
+  // 3. flashcards
+  main.append(el('div',{class:'sec-title'},'3. Карточки'));
+  const c3=el('section',{class:'card'},el('p',{class:'instr'},'Нажми на карточку, чтобы увидеть испанский. Попробуй сначала сказать вслух сама.'));
+  let idx=0;
+  const card=el('div',{class:'nv-card',role:'button',tabindex:'0'});
+  const prev=el('button',{class:'btn ghost',type:'button'},'← Назад'),next=el('button',{class:'btn',type:'button'},'Дальше →'),cnt=el('span',{class:'nv-count'});
+  const show=()=>{const [es,ru]=items[idx];card.classList.remove('open');
+    card.innerHTML=`<span class="ru">${nvEsc(ru)}</span><span class="es">${nvBold(es)}</span><span class="tap">Нажми, чтобы проверить</span>`;
+    card.append(el('button',{class:'say',type:'button','aria-label':'Послушать',html:SPK,onclick:e=>{e.stopPropagation();say(nvPlain(es))}}));
+    cnt.textContent=`${idx+1} / ${items.length}`;prev.disabled=idx===0;next.disabled=idx===items.length-1};
+  const flip=()=>{card.classList.toggle('open');if(card.classList.contains('open'))say(nvPlain(items[idx][0]))};
+  card.addEventListener('click',flip);card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();flip()}});
+  prev.onclick=()=>{if(idx>0){idx--;show()}};next.onclick=()=>{if(idx<items.length-1){idx++;show()}};
+  show();c3.append(card,el('div',{class:'nv-nav'},prev,cnt,next));main.append(c3);
+
+  // 4. quiz
+  main.append(el('div',{class:'sec-title'},'4. Тест'));
+  const c4=el('section',{class:'card nv-q'});main.append(c4);
+  let order,qi,score;
+  const start=()=>{order=shuffle(items);qi=0;score=0;q()};
+  const q=()=>{c4.innerHTML='';
+    if(qi>=order.length){const n=order.length;
+      c4.append(el('p',{class:'nv-qtext',html:`Готово! Верно с первого раза: <span class="nv-score">${score} из ${n}</span>`}),
+        el('div',{class:'nv-done'},score===n?'¡Perfecto! Все ответы верные 🎉':score>=n*0.7?'¡Muy bien! Почти всё верно.':'Повтори карточки и попробуй ещё раз.'),
+        el('div',{class:'actions'},el('button',{class:'btn',type:'button',onclick:start},'Ещё раз')));return}
+    const [es,ru]=order[qi];const pool=NV[3].items.filter(x=>x[0]!==es);
+    const opts=el('div',{class:'opts'});let miss=false;
+    shuffle([es,...shuffle(pool).slice(0,2).map(x=>x[0])]).forEach(o=>{const b=el('button',{class:'opt',type:'button'},nvPlain(o));
+      b.onclick=()=>{if(o===es){b.classList.add('ok');if(!miss)score++;say(nvPlain(es));opts.querySelectorAll('.opt').forEach(x=>x.disabled=true);setTimeout(()=>{qi++;q()},1100)}
+        else{miss=true;b.classList.add('bad');b.disabled=true}};opts.append(b)});
+    c4.append(el('p',{class:'instr',html:`Вопрос ${qi+1} из ${order.length} · <span class="nv-score">★ ${score}</span>`}),el('p',{class:'nv-qtext'},ru),opts)};
+  start();
 }
 
 function renderAll(){renderTabs();renderLesson()}

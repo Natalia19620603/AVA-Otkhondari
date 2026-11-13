@@ -155,6 +155,33 @@ footer button{background:none;border:none;color:var(--muted);text-decoration:und
 .jb.done{border-color:var(--sun);background:var(--sun-soft)}
 .jb:hover{border-color:var(--tile)}
 main [id^="go-"]{scroll-margin-top:12px}
+/* ---------- Memory game ---------- */
+.mm-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px}
+.mm-bar .lvl{display:inline-flex;border:2px solid var(--line);border-radius:12px;overflow:hidden}
+.mm-bar .lvl button{border:none;background:var(--card);padding:6px 12px;font-weight:800;font-size:14px}
+.mm-bar .lvl button[aria-pressed="true"]{background:var(--tile);color:var(--card)}
+.mm-stat{margin-left:auto;color:var(--muted);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.mm-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:560px){.mm-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.mm{position:relative;border:none;padding:0;background:none;min-height:96px;perspective:700px;border-radius:14px}
+.mm-in{position:absolute;inset:0;transition:transform .35s;transform-style:preserve-3d}
+.mm.open .mm-in,.mm.ok .mm-in{transform:rotateY(180deg)}
+.mm-side{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px;text-align:center;overflow:hidden;padding:4px}
+.mm-back{background:
+  radial-gradient(circle at 50% 50%,var(--sun) 0 9%,transparent 10%),
+  conic-gradient(from 45deg,var(--tile) 0 25%,var(--tile-soft) 0 50%,var(--tile) 0 75%,var(--tile-soft) 0);
+  background-size:32px 32px;border:3px solid var(--tile)}
+.mm-back b{background:var(--card);color:var(--tile);border-radius:50%;width:34px;height:34px;display:grid;place-items:center;font-family:var(--f-display);font-size:18px}
+.mm-face{transform:rotateY(180deg);background:var(--card);border:2px solid var(--sun)}
+.mm-face .w{font-weight:800;color:var(--tile);font-size:15px;line-height:1.2;overflow-wrap:break-word;hyphens:auto;max-width:100%}
+.mm-face .e{font-size:30px;line-height:1.1}
+.mm-face .t{color:var(--ink);font-size:13px;line-height:1.2;overflow-wrap:break-word;hyphens:auto;max-width:100%}
+.mm.ok .mm-face{border-color:var(--ok);background:var(--ok-soft)}
+.mm.ok .mm-face .w,.mm.ok .mm-face .t{color:var(--ok)}
+.mm.miss .mm-face{border-color:var(--bad);background:var(--bad-soft)}
+.mm.ok{cursor:default}
+.mm:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.mm-win{background:var(--sun-soft);border-radius:12px;padding:12px 14px;font-weight:700;margin-top:12px}
 @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 /* ---------- Navidad lesson ---------- */
@@ -618,6 +645,10 @@ const LESSONS=[
 {id:'navidad',short:'Праздники',title:'🎄 Navidad y Año Nuevo',pages:'20 фраз про Рождество и Новый год в Испании',custom:true,rules:[],words:[],ex:[]}
 ];
 
+LESSONS.forEach(L=>{if(L.custom)return;
+  const pool=L.words.concat(...L.ex.filter(x=>x.type==='cards').map(x=>x.words));
+  L.ex.unshift({type:'memory',title:'Memory: найди пару',instr:'Переворачивай по две карточки и ищи пары: испанское слово и его перевод с картинкой. Испанские слова озвучиваются. Чем меньше ходов, тем лучше! Кнопка «Новая игра» берёт другие слова из этого занятия.',words:pool})});
+
 /* ---------- state ---------- */
 const KEY='atitetoca-v2';
 let done={};
@@ -666,7 +697,7 @@ function renderTabs(){
   const nav=document.getElementById('tabs');nav.innerHTML='';
   LESSONS.forEach((L,i)=>{
     nav.append(el('button',{class:'tab',role:'tab','aria-selected':String(L.id===current),onclick:()=>{current=L.id;try{history.replaceState(null,'','#'+L.id)}catch(e){}renderAll();window.scrollTo({top:0})}},
-      el('small',{},L.custom?L.short:`Занятие ${i+1} · ${L.short}`),el('b',{},L.title),el('span',{class:'st'},L.custom?'4 задания · 20 фраз':`★ ${lessonStars(L)} из ${tasks(L).length}`)));
+      el('small',{},L.custom?L.short:`Занятие ${i+1} · ${L.short}`),el('b',{},L.title),el('span',{class:'st'},L.custom?'5 заданий · 20 фраз':`★ ${lessonStars(L)} из ${tasks(L).length}`)));
   });
 }
 
@@ -807,7 +838,86 @@ function exWrite(ex,finish,isDone){
   return el('div',{},st,ta,el('div',{class:'actions'},btn,listen),fb);
 }
 
-const R={choice:exChoice,type:exType,translate:exType,match:exMatch,order:exOrder,write:exWrite};
+/* ---------- Memory game ---------- */
+const EMO={
+ 'el abuelo':'👴','la abuela':'👵','el padre':'👨','la madre':'👩','el hermano':'👦','la hermana':'👧','el tío':'🧔','la tía':'👩‍🦰',
+ 'el primo':'🧒','la prima':'👧','los mellizos':'👯','el padrastro':'👨‍👧','la madrastra':'👩‍👦','los nietos':'👶','los bisnietos':'🍼',
+ 'los tatarabuelos':'🧓','hija única':'☝️👧','estar casados':'💍','estar divorciados':'💔','un ordenador':'💻','un móvil':'📱','un correo electrónico':'📧',
+ 'el perro':'🐶','el gato':'🐱','el conejo':'🐰','el conejillo de indias':'🐹','el hámster':'🐹','la tortuga':'🐢','el pájaro':'🐦','el periquito':'🦜',
+ 'el pez rojo':'🐠','la serpiente':'🐍','el gallo':'🐓','el hurón':'🦦','cariñoso':'🥰','valiente':'🦁','amistoso':'🤝','nervioso':'😬','activo':'🏃',
+ 'independiente':'🐈','sociable':'🎉','achuchable':'🤗','se porta muy bien':'😇',
+ 'el apellido':'🪪','nacer (nace)':'👶','crecer (crece)':'🌱','mayor':'👴','los aficionados':'📣','apasionado':'❤️‍🔥','la pareja':'💑','andar (anda)':'🚶',
+ 'el adulto':'🧑','la silla':'🪑','la rueda':'🛞','la silla de ruedas':'🦽','el anciano':'🧓','saltar':'🤸',
+ 'la lotería de navidad':'🎟️','el gordo':'💰','el décimo':'🎫','un décimo':'🎫','el sorteo':'🎰','los bombos':'🥁','nochevieja':'🎆','la puerta del sol':'🏛️',
+ 'las campanadas':'🔔','las uvas':'🍇','el reloj':'🕛','el año nuevo':'🥂','los reyes magos':'👑','la cabalgata':'🐪','una cabalgata':'🐪','los regalos':'🎁','regalos':'🎁',
+ 'la carta':'✉️','el roscón':'🍩','el turrón':'🍫','turrón':'🍫','la magia':'✨','magia':'✨','cantar':'🎤','cantan':'🎤','ganar':'🏆','ganar el premio':'🏆','el premio':'🏆',
+ 'las campanas':'🔔','las campanas suenan':'🔔','sonar':'🎶','celebrar':'🥳','la alegría':'😄','alegría':'😄','la corona':'👑','una corona':'👑','el desfile':'🎺',
+ 'despertarse':'⏰','levantarse':'🛏️','lavarse la cara':'🧼','vestirse':'👕','desayunar':'🥣','almorzar':'🍝','merendar':'🧃','cenar':'🍽️','acostarse':'😴',
+ 'pasear':'🚶','ir de compras':'🛍️','temprano':'🌅','el atardecer':'🌇','la ciudad':'🏙️','el campo':'🌾','el centro comercial':'🏬','la cocina':'🍳',
+ 'el salón':'🛋️','el dormitorio':'🛏️','las redes sociales':'📲',
+ 'los churros':'🥖','el chocolate':'☕','la chocolatería':'🏪','la churrería':'🏪','el churrero':'👨‍🍳','la merienda':'🧁','el amanecer':'🌄','la leche':'🥛',
+ 'las galletas':'🍪','el pan con chocolate':'🍞','el yogur':'🥄','el plátano':'🍌','el zumo de naranja':'🧃','los cereales':'🥣','espeso':'🍯','caliente':'🔥',
+ 'dulce':'🍬','rico':'😋','amargo':'🍋','ligero':'🪶'
+};
+const emo=es=>EMO[es.toLowerCase().trim()]||'';
+const sayEs=es=>es.replace(/\s*\(.*?\)/g,'');
+function memoryGame(pool,finish,opts={}){
+  const uniq=[];const seen=new Set();pool.forEach(p=>{if(!seen.has(p[0])){seen.add(p[0]);uniq.push(p)}});
+  const sizes=(opts.sizes||[6,8,10]).filter(n=>n<=uniq.length);if(!sizes.length)sizes.push(uniq.length);
+  let size=sizes.includes(opts.size)?opts.size:sizes[0];
+  const wrap=el('div',{class:'mm-wrap'});
+  const stat=el('span',{class:'mm-stat','aria-live':'polite'});
+  const lvl=el('div',{class:'lvl',role:'group','aria-label':'Сколько пар'});
+  const grid=el('div',{class:'mm-grid'});const win=el('div',{class:'mm-win',hidden:''});
+  const again=el('button',{class:'btn ghost',type:'button'},'Новая игра');
+  sizes.forEach(n=>lvl.append(el('button',{type:'button','aria-pressed':String(n===size),onclick:e=>{size=n;lvl.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===e.currentTarget)));start()}},n+' пар')));
+  wrap.append(el('div',{class:'mm-bar'},lvl,again,stat),grid,win);
+  let first=null,lock=false,moves=0,left=0,timer=null;
+  const upd=()=>{stat.textContent=`Ходов: ${moves} · Пар найдено: ${size-left} из ${size}`};
+  function start(){
+    clearTimeout(timer);grid.innerHTML='';win.hidden=true;first=null;lock=false;moves=0;left=size;
+    const pick=shuffle(uniq).slice(0,size);
+    const cards=shuffle(pick.flatMap((p,i)=>[{i,side:'es',p},{i,side:'ru',p}]));
+    cards.forEach(c=>{
+      const [es,ru]=c.p;const e=emo(es);
+      const face=el('span',{class:'mm-side mm-face'});
+      if(c.side==='es')face.append(el('span',{class:'w',lang:'es'},es));
+      else{if(e)face.append(el('span',{class:'e','aria-hidden':'true'},e));face.append(el('span',{class:'t',lang:'ru'},ru))}
+      const b=el('button',{class:'mm',type:'button','aria-label':'Закрытая карточка'},
+        el('span',{class:'mm-in'},el('span',{class:'mm-side mm-back','aria-hidden':'true'},el('b',{},'?')),face));
+      b.onclick=()=>{
+        if(lock||b.classList.contains('open')||b.classList.contains('ok'))return;
+        b.classList.add('open');b.setAttribute('aria-label',c.side==='es'?es:ru);
+        if(c.side==='es')say(sayEs(es));
+        if(!first){first={b,c};return}
+        moves++;const f=first;first=null;
+        if(f.c.i===c.i){
+          [f.b,b].forEach(x=>{x.classList.remove('open');x.classList.add('ok')});
+          if(c.side!=='es')say(sayEs(es));
+          left--;upd();
+          if(left===0){
+            const best=size;win.hidden=false;
+            win.textContent=moves<=best+2?`¡Increíble! Все ${size} пар всего за ${moves} ходов 🏆`:moves<=best*2?`¡Muy bien! Все пары найдены за ${moves} ходов 🎉`:`¡Bravo! Все пары найдены за ${moves} ходов. Сыграй ещё раз и попробуй быстрее!`;
+            finish();
+          }
+        }else{
+          lock=true;upd();
+          [f.b,b].forEach(x=>x.classList.add('miss'));
+          timer=setTimeout(()=>{[f.b,b].forEach(x=>{x.classList.remove('open','miss');x.setAttribute('aria-label','Закрытая карточка')});lock=false},1100);
+        }
+        upd();
+      };
+      grid.append(b);
+    });
+    upd();
+  }
+  again.onclick=start;start();
+  return wrap;
+}
+function exMemory(ex,finish){
+  return memoryGame(ex.words,finish);
+}
+const R={choice:exChoice,type:exType,translate:exType,match:exMatch,order:exOrder,write:exWrite,memory:exMemory};
 
 const PLAY='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>';
 const STOP='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
@@ -1002,6 +1112,12 @@ function renderNavidad(main,L){
         else{miss=true;b.classList.add('bad');b.disabled=true}};opts.append(b)});
     c4.append(el('p',{class:'instr',html:`Вопрос ${qi+1} из ${order.length} · <span class="nv-score">★ ${score}</span>`}),el('p',{class:'nv-qtext'},ru),opts)};
   start();
+
+  // 5. memory
+  main.append(el('div',{class:'sec-title'},'5. Memory'));
+  const pool=items.flatMap(([es,ru,h])=>nvWords(es).map((w,k)=>[w,h[k]||'']));
+  const c5=el('section',{class:'card'},el('p',{class:'instr'},'Переворачивай по две карточки и ищи пары: испанское слово и его перевод с картинкой. Чем меньше ходов, тем лучше!'));
+  c5.append(memoryGame(pool,()=>{},{sizes:[6,8,10]}));main.append(c5);
 }
 
 function renderAll(){renderTabs();renderLesson()}

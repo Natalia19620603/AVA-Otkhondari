@@ -633,7 +633,7 @@ const LESSONS=[
    {q:'Двадцать второе декабря.',a:['El 22 de diciembre','El veintidós de diciembre','22 de diciembre','Veintidós de diciembre']}]}
  ]},
 
-{id:'leccion2',short:'Новое',title:'Мой день',pages:'Текст 1 «Un día de Lucía» · Текст 2 из учебника «Voy a desayunar» · Учебник с. 43 · Тетрадь с. 28–31',
+{id:'leccion2',short:'Новое',title:'Мой день',flow:["Что на картинке?", "Послушай и найди картинку", "Слово и картинка", "Где и когда", "Memory", "Un día de Lucía", "Текст 1: вопросы", "Мини-история", "Новые слова из текста", "Текст 2: слово и картинка", "Текст 2: ещё слова", "Voy a desayunar", "Текст 2: вопросы", "Текст 1: возвратные", "Текст 1: soler", "Текст 1: gusta", "Текст 1: который час", "Где это происходит", "Текст 2: выражения", "Текст 2: глаголы", "Испанские часы еды", "Текст 1: собери", "Текст 2: собери", "Анаграммы", "Кроссворд", "Текст 1: переведи", "Текст 2: переведи", "Мини-проект"],pages:'Текст 1 «Un día de Lucía» · Текст 2 из учебника «Voy a desayunar» · Учебник с. 43 · Тетрадь с. 28–31',
  rules:[
   {h:'Me gusta и me gustan',html:`<table><tr><th>кому</th><th>одна вещь / действие</th><th>много вещей</th></tr>
    <tr><td>мне</td><td>me gusta</td><td>me gustan</td></tr><tr><td>тебе</td><td>te gusta</td><td>te gustan</td></tr>
@@ -894,6 +894,7 @@ LESSONS.forEach(L=>{if(L.custom)return;
     {type:'anagram',title:'Анаграммы',instr:'Буквы перепутались! Нажимай на них по порядку и собери испанское слово. Подсказка — картинка и перевод. ⌫ стирает последнюю букву.',words:pool},
     {type:'crossword',title:'Кроссворд',instr:'Нажми на подсказку или на клетку и впиши испанское слово без артикля. Ударения ставить не обязательно. Нажми на клетку ещё раз, чтобы сменить направление.',words:pool});
   const q=QUEST[L.id];if(q)L.ex.push({type:'quest',title:'Мини-история: '+q.title,instr:'На каждом шаге выбери правильную фразу, чтобы героиня дошла до цели.',q});
+  if(L.flow){const pos=x=>{const i=L.flow.findIndex(t=>x.title.startsWith(t));return i<0?999:i};L.ex=L.ex.map((x,i)=>[x,i]).sort((a,b)=>pos(a[0])-pos(b[0])||a[1]-b[1]).map(a=>a[0])}
 });
 
 /* ---------- state ---------- */
@@ -1509,7 +1510,7 @@ function stepper(main,id,steps,opts={}){
     box.innerHTML='';
     if(opts.top)box.append(opts.top());
     if(idx<0){
-      const groups=[['Учим',steps.filter(s=>s.info)],['Упражнения',steps.filter(s=>!s.info)]];
+      const groups=opts.flow?[['Учим',steps.filter(s=>s.top)],['Занятие по порядку: от простого к сложному',steps.filter(s=>!s.top)]]:[['Учим',steps.filter(s=>s.info)],['Упражнения',steps.filter(s=>!s.info)]];
       groups.forEach(([h,list])=>{if(!list.length)return;
         box.append(el('div',{class:'sec-title'},h));const g=el('div',{class:'tiles'});
         list.forEach(s=>{const i=steps.indexOf(s);const d=s.key&&done[s.key];
@@ -1539,8 +1540,8 @@ function stepper(main,id,steps,opts={}){
 
 function lessonSteps(L){
   const steps=[
-    {icon:'📘',label:'Правило',info:1,head:1,render:()=>{const rules=el('div',{class:'rules'});L.rules.forEach(r=>rules.append(el('div',{class:'card'},el('h3',{},r.h),el('div',{html:r.html}))));return rules}},
-    {icon:'🗂️',label:'Слова',info:1,head:1,render:()=>el('div',{},el('p',{class:'hint-line'},'Сначала скажи перевод сама, потом нажми на карточку и проверь себя.'),flashGrid(L.words))}];
+    {icon:'📘',label:'Правило',info:1,head:1,top:1,render:()=>{const rules=el('div',{class:'rules'});L.rules.forEach(r=>rules.append(el('div',{class:'card'},el('h3',{},r.h),el('div',{html:r.html}))));return rules}},
+    {icon:'🗂️',label:'Слова',info:1,head:1,top:1,render:()=>el('div',{},el('p',{class:'hint-line'},'Сначала скажи перевод сама, потом нажми на карточку и проверь себя.'),flashGrid(L.words))}];
   let n=0,tn=0;
   L.ex.forEach((ex,i)=>{
     ex._id=L.id+'-'+i;
@@ -1564,7 +1565,7 @@ function renderLesson(){
   main.append(el('div',{class:'lesson-head'},el('h2',{},L.title),el('span',{class:'pages'},L.pages)));
   main.append(el('div',{class:'meter'},el('i',{id:'meter'})));
   const last=LESSONS.indexOf(L)===LESSONS.filter(x=>!x.custom).length-1;
-  stepper(main,L.id,lessonSteps(L),{after:()=>{const b=el('div',{class:'done-banner',id:'banner'},last?'¡Enhorabuena! Все звёзды собраны. Теперь можно открыть тетрадь и сделать с. 16–33 самой.':'¡Fenomenal! Все звёзды этого занятия собраны. Переходи к следующему.');b.hidden=lessonStars(L)<tasks(L).length;return b}});
+  stepper(main,L.id,lessonSteps(L),{flow:!!L.flow,after:()=>{const b=el('div',{class:'done-banner',id:'banner'},last?'¡Enhorabuena! Все звёзды собраны. Теперь можно открыть тетрадь и сделать с. 16–33 самой.':'¡Fenomenal! Все звёзды этого занятия собраны. Переходи к следующему.');b.hidden=lessonStars(L)<tasks(L).length;return b}});
   updateMeter(L);
 }
 

@@ -68,6 +68,19 @@ em.es{font-style:normal;font-weight:800;color:var(--tile)}
 .flash .ru{color:var(--muted);font-size:15px;visibility:hidden}
 .flash.open{border-color:var(--sun)}
 .flash.open .ru{visibility:visible}
+.flash .pic{display:block;width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:10px;margin-bottom:6px;background:var(--tile-soft)}
+.flash.has-pic{padding:8px 10px 10px;justify-content:flex-start}
+.flash.has-pic .say{top:14px;right:14px;background:var(--card)}
+.pq{display:grid;gap:12px;justify-items:center}
+.pq .big{width:100%;max-width:420px;aspect-ratio:3/2;object-fit:cover;border-radius:14px;border:2px solid var(--line)}
+.pq .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:420px}
+.pq .opt{text-align:center;padding:10px 8px;font-size:16px;min-width:0;overflow-wrap:anywhere}
+.pq .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:460px}
+.pq .pbtn{padding:0;border:3px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card);line-height:0}
+.pq .pbtn img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block}
+.pq .pbtn.ok{border-color:var(--ok)}
+.pq .pbtn.bad{border-color:var(--bad);animation:shake .3s}
+.pq .pstat{font-weight:700;color:var(--muted)}
 .say{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:none;background:var(--tile-soft);color:var(--tile);display:grid;place-items:center}
 .say svg{width:16px;height:16px}
 .say.inline{position:static;display:inline-grid;vertical-align:middle;margin-left:8px;flex:none}
@@ -637,6 +650,8 @@ const LESSONS=[
  ],
  words:[['despertarse','просыпаться'],['levantarse','вставать'],['lavarse la cara','умываться'],['vestirse','одеваться'],['desayunar','завтракать'],['almorzar','обедать'],['merendar','полдничать'],['cenar','ужинать'],['acostarse','ложиться спать'],['pasear','гулять'],['ir de compras','ходить по магазинам'],['temprano','рано'],['el atardecer','закат'],['la ciudad','город'],['el campo','деревня, природа'],['el centro comercial','торговый центр'],['la cocina','кухня'],['el salón','гостиная'],['el dormitorio','спальня'],['las redes sociales','соцсети']],
  ex:[
+  {type:'pics',title:'Что на картинке?',instr:'Посмотри на картинку и выбери слово. Правильное слово прозвучит.',mode:'see'},
+  {type:'pics',title:'Послушай и найди картинку',instr:'Послушай слово и нажми на нужную картинку. Кнопка 🔊 повторит слово.',mode:'listen'},
   {type:'cards',title:'Новые слова из текста «Voy a desayunar»',src:'Учебник, текст «Voy a desayunar»',words:[
    ['abrir los ojos','открыть глаза'],['el ojo','глаз'],['tener hambre','хотеть есть, быть голодным'],['la cama','кровать'],['salir de la cama','вылезать из кровати'],
    ['de un salto','одним прыжком'],['estirarse','потягиваться'],['bostezar','зевать'],['esperar','ждать'],['el vaso','стакан'],['la leche','молоко'],['el cacao','какао'],
@@ -834,6 +849,7 @@ navidad:{title:'Ждём Королей-волхвов',hero:'👧',goal:'🎁',
  end:'¡Gracias, Reyes Magos! ¡Qué alegría!',endRu:'Спасибо, Короли-волхвы! Какая радость!'}
 };
 LESSONS.forEach(L=>{if(L.custom)return;
+  L.ex.forEach(x=>{if(x.type==='pics'&&!x.words)x.words=L.words});
   const pool=L.words.concat(...L.ex.filter(x=>x.type==='cards').map(x=>x.words));
   L.ex.unshift(
     {type:'memory',title:'Memory: найди пару',instr:'Переворачивай по две карточки и ищи пары: испанское слово и его перевод с картинкой. Испанские слова озвучиваются. Чем меньше ходов, тем лучше! Кнопка «Новая игра» берёт другие слова из этого занятия.',words:pool},
@@ -1059,6 +1075,46 @@ const EMO={
 };
 const emo=es=>EMO[es.toLowerCase().trim()]||'';
 const sayEs=es=>es.replace(/\s*\(.*?\)/g,'');
+const PIC={'despertarse':'despertarse','levantarse':'levantarse','lavarse la cara':'lavarse','vestirse':'vestirse','desayunar':'desayunar',
+ 'almorzar':'almorzar','merendar':'merendar','cenar':'cenar','acostarse':'acostarse','pasear':'pasear','ir de compras':'compras','temprano':'temprano',
+ 'el atardecer':'atardecer','la ciudad':'ciudad','el campo':'campo','el centro comercial':'centro','la cocina':'cocina','el salón':'salon',
+ 'el dormitorio':'dormitorio','las redes sociales':'redes'};
+const pic=es=>{const k=PIC[es.toLowerCase().trim()];return k?'dia/'+k+'.jpg':''};
+
+/* ---------- picture quiz: see the picture, pick the word / hear the word, pick the picture ---------- */
+function exPics(ex,finish){
+  const all=ex.words.filter(w=>pic(w[0]));const per=Math.min(ex.n||10,all.length);
+  const box=el('div',{class:'pq'});let doneOnce=false;
+  function start(){
+    const qs=shuffle(all).slice(0,per);let i=0;
+    const round=()=>{
+      box.innerHTML='';
+      if(i>=qs.length){box.append(el('div',{class:'fb ok'},'¡Muy bien! Все картинки угаданы.'),
+        el('button',{class:'btn ghost',type:'button',onclick:start},'Ещё раз'));if(!doneOnce){doneOnce=true;finish()}return}
+      const [es,ru]=qs[i];const wrong=shuffle(all.filter(w=>w[0]!==es)).slice(0,3);const opts=shuffle([qs[i],...wrong]);
+      const fb=el('div',{class:'fb'});let solved=false;
+      const ok=(b)=>{solved=true;b.classList.add('ok');fb.className='fb ok';fb.textContent='Верно! '+es+' — '+ru;say(es);setTimeout(()=>{i++;round()},1400)};
+      const bad=(b)=>{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');fb.className='fb bad';fb.textContent='Не совсем, попробуй ещё.'};
+      box.append(el('div',{class:'pstat'},`${i+1} из ${qs.length}`));
+      if(ex.mode==='listen'){
+        box.append(el('button',{class:'btn',type:'button',onclick:()=>say(es)},'🔊 Послушать ещё раз'));
+        const g=el('div',{class:'pgrid'});
+        opts.forEach(o=>{const b=el('button',{class:'pbtn',type:'button','aria-label':'картинка'},el('img',{src:pic(o[0]),alt:'',loading:'lazy'}));
+          b.addEventListener('click',()=>{if(solved)return;o[0]===es?ok(b):bad(b)});g.append(b)});
+        box.append(g,fb);setTimeout(()=>say(es),300);
+      }else{
+        box.append(el('img',{class:'big',src:pic(es),alt:'Что на картинке?'}));
+        const g=el('div',{class:'opts'});
+        opts.forEach(o=>{const b=el('button',{class:'opt',type:'button'},o[0]);
+          b.addEventListener('click',()=>{if(solved)return;o[0]===es?ok(b):bad(b)});g.append(b)});
+        box.append(g,fb);
+      }
+    };
+    round();
+  }
+  start();
+  return box;
+}
 function memoryGame(pool,finish,opts={}){
   const uniq=[];const seen=new Set();pool.forEach(p=>{if(!seen.has(p[0])){seen.add(p[0]);uniq.push(p)}});
   const sizes=(opts.sizes||[6,8,10]).filter(n=>n<=uniq.length);if(!sizes.length)sizes.push(uniq.length);
@@ -1279,14 +1335,15 @@ function exQuest(ex,finish){
     box.append(opts,hint)};
   draw();return box;
 }
-const R={choice:exChoice,type:exType,translate:exType,match:exMatch,order:exOrder,write:exWrite,memory:exMemory,anagram:exAnagram,crossword:exCrossword,quest:exQuest};
+const R={pics:exPics,choice:exChoice,type:exType,translate:exType,match:exMatch,order:exOrder,write:exWrite,memory:exMemory,anagram:exAnagram,crossword:exCrossword,quest:exQuest};
 
 const PLAY='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>';
 const STOP='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
 function flashGrid(words){
   const w=el('div',{class:'words'});
   words.forEach(([es,ru])=>{
-    const c=el('div',{class:'flash',role:'button',tabindex:'0','aria-label':es},el('span',{class:'es'},es),el('span',{class:'ru'},ru));
+    const p=pic(es);
+    const c=el('div',{class:'flash'+(p?' has-pic':''),role:'button',tabindex:'0','aria-label':es},p?el('img',{class:'pic',src:p,alt:'',loading:'lazy'}):null,el('span',{class:'es'},es),el('span',{class:'ru'},ru));
     const flip=()=>c.classList.toggle('open');
     c.addEventListener('click',flip);c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();flip()}});
     c.append(el('button',{class:'say',type:'button','aria-label':'Послушать '+es,html:SPK,onclick:e=>{e.stopPropagation();say(es.replace(/\s*\(.*?\)/g,''))}}));
@@ -1378,7 +1435,7 @@ function storyCard(t){
 }
 
 /* ---------- lesson: menu of tiles, one step on screen ---------- */
-const ICON={choice:'🔘',type:'✏️',translate:'🌍',match:'🔗',order:'🧩',write:'📝',memory:'🃏',anagram:'🔀',crossword:'🔠',quest:'🗺️'};
+const ICON={pics:'🖼️',choice:'🔘',type:'✏️',translate:'🌍',match:'🔗',order:'🧩',write:'📝',memory:'🃏',anagram:'🔀',crossword:'🔠',quest:'🗺️'};
 let stepOf={};try{stepOf=JSON.parse(localStorage.getItem('atitetoca-step')||'{}')||{}}catch(e){stepOf={}}
 const saveStep=()=>{try{localStorage.setItem('atitetoca-step',JSON.stringify(stepOf))}catch(e){}};
 const smooth=()=>matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';

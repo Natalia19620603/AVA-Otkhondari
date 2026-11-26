@@ -152,6 +152,16 @@ input.blank.bad{border-color:var(--bad);background:var(--bad-soft);color:var(--b
 .gpop{cursor:pointer}
 .player .btn[aria-pressed="true"]{background:var(--sun-soft);border-color:var(--sun);color:var(--ink)}
 .story .tip{font-size:14px;color:var(--muted);margin:-4px 0 10px}
+.story .frb{border:none;background:none;padding:0 2px;font-size:15px;line-height:1;vertical-align:baseline;opacity:.55}
+.story .frb.on,.story .frb:hover{opacity:1}
+.story .frt{display:block;margin:2px 0 6px;padding:4px 10px;border-left:3px solid var(--tile);background:var(--card);border-radius:6px;font-size:15px;color:var(--muted);font-style:italic}
+.story .frt[hidden]{display:none}
+.gpop{flex-wrap:wrap}
+.gpop .gimg{width:100%;max-width:180px;aspect-ratio:3/2;object-fit:contain;background:#fff;border-radius:8px;flex-basis:100%}
+.mm-face .mi{width:100%;height:58%;object-fit:contain;background:#fff;border-radius:8px}
+.chip.pchip{padding:3px;display:flex;align-items:center;justify-content:center}
+.chip.pchip img{width:100%;max-width:150px;aspect-ratio:3/2;object-fit:contain;background:#fff;border-radius:7px;display:block}
+.qimg{display:block;width:130px;aspect-ratio:3/2;object-fit:contain;background:#fff;border-radius:10px;border:1px solid var(--line);margin-bottom:6px}
 .ru-q{flex:1 1 100%;font-weight:700}
 input.blank.wide{width:100%;text-align:left}
 .order-item{padding-block:10px;border-top:1px dashed var(--line)}
@@ -622,7 +632,7 @@ const LESSONS=[
    {q:'Двадцать второе декабря.',a:['El 22 de diciembre','El veintidós de diciembre','22 de diciembre','Veintidós de diciembre']}]}
  ]},
 
-{id:'leccion2',short:'Новое',title:'Мой день',pages:'Учебник с. 43 и текст «Voy a desayunar» · Тетрадь с. 28–31',
+{id:'leccion2',short:'Новое',title:'Мой день',pages:'Текст 1 «Un día de Lucía» · Текст 2 из учебника «Voy a desayunar» · Учебник с. 43 · Тетрадь с. 28–31',
  rules:[
   {h:'Me gusta и me gustan',html:`<table><tr><th>кому</th><th>одна вещь / действие</th><th>много вещей</th></tr>
    <tr><td>мне</td><td>me gusta</td><td>me gustan</td></tr><tr><td>тебе</td><td>te gusta</td><td>te gustan</td></tr>
@@ -650,8 +660,76 @@ const LESSONS=[
  ],
  words:[['despertarse','просыпаться'],['levantarse','вставать'],['lavarse la cara','умываться'],['vestirse','одеваться'],['desayunar','завтракать'],['almorzar','обедать'],['merendar','полдничать'],['cenar','ужинать'],['acostarse','ложиться спать'],['pasear','гулять'],['ir de compras','ходить по магазинам'],['temprano','рано'],['el atardecer','закат'],['la ciudad','город'],['el campo','деревня, природа'],['el centro comercial','торговый центр'],['la cocina','кухня'],['el salón','гостиная'],['el dormitorio','спальня'],['las redes sociales','соцсети']],
  ex:[
-  {type:'pics',title:'Что на картинке?',instr:'Посмотри на картинку и выбери слово. Правильное слово прозвучит.',mode:'see'},
+  {type:'story',title:'Un día de Lucía',src:'Простой текст на 20 слов урока. Синие слова: слова урока, пунктиром: подсказки.',paras:[
+   'Me llamo Lucía y tengo once años. Vivo en la {ciudad|город (la ciudad)}, en un [piso|квартира (el piso)] con mis [padres|родители (los padres)].',
+   '{Suelo despertarme|обычно просыпаюсь (despertarse)} a las siete de la mañana. Es {temprano|рано (temprano)}, pero {me levanto|встаю (levantarse)} [rápido|быстро]. [Primero|сначала] {me lavo la cara|умываюсь (lavarse la cara)} y [después|потом] {me visto|одеваюсь (vestirse)}. {Desayuno|завтракаю (desayunar)} en la {cocina|кухня (la cocina)}: [leche|молоко (la leche)] con [cacao|какао (el cacao)] y una [magdalena|кекс, маффин (la magdalena)].',
+   'A las ocho y media voy al [colegio|школа (el colegio)]. {Almuerzo|обедаю (almorzar)} en el colegio a las dos. A las cinco {meriendo|полдничаю (merendar)} [pan con chocolate|хлеб с шоколадом] en el {salón|гостиная (el salón)}.',
+   '[Por la tarde|днём, после обеда] {paseo|гуляю (pasear)} con mi [perro|собака (el perro)]. [Los sábados|по субботам] {voy de compras|хожу по магазинам (ir de compras)} con mi madre al {centro comercial|торговый центр (el centro comercial)}. [Los domingos|по воскресеньям] vamos al {campo|деревня, природа (el campo)} con mis [abuelos|бабушка и дедушка (los abuelos)]. ¡Me gusta mucho [ver|смотреть] el {atardecer|закат (el atardecer)}!',
+   '{Ceno|ужинаю (cenar)} con mi familia a las nueve de la noche. [Después|потом] [miro|смотрю (mirar)] [un poco|немного] las {redes sociales|соцсети (las redes sociales)}. A las diez {me acuesto|ложусь спать (acostarse)} en mi {dormitorio|спальня (el dormitorio)}. ¡Buenas noches!'],
+   fr:[["Je m'appelle Lucía et j'ai onze ans.","J'habite en ville, dans un appartement avec mes parents."],
+    ["D'habitude, je me réveille à sept heures du matin.","C'est tôt, mais je me lève vite.","D'abord je me lave le visage, et ensuite je m'habille.","Je prends mon petit-déjeuner dans la cuisine : du lait au cacao et une madeleine."],
+    ["À huit heures et demie, je vais à l'école.","Je déjeune à l'école à deux heures.","À cinq heures, pour le goûter, je mange du pain avec du chocolat dans le salon."],
+    ["L'après-midi, je me promène avec mon chien.","Le samedi, je fais du shopping avec ma mère au centre commercial.","Le dimanche, nous allons à la campagne avec mes grands-parents.","J'aime beaucoup regarder le coucher du soleil !"],
+    ["Je dîne avec ma famille à neuf heures du soir.","Ensuite, je regarde un peu les réseaux sociaux.","À dix heures, je me couche dans ma chambre.","Bonne nuit !"]]},
+  {type:'pics',title:'Что на картинке?',instr:'Посмотри на картинку и выбери слово. Правильное слово прозвучит. Здесь слова из обоих текстов.',mode:'see'},
   {type:'pics',title:'Послушай и найди картинку',instr:'Послушай слово и нажми на нужную картинку. Кнопка 🔊 повторит слово.',mode:'listen'},
+  {type:'match',title:'Слово и картинка',instr:'Нажми на слово, потом на нужную картинку.',pic:true,pairs:[['despertarse','просыпаться'],['levantarse','вставать'],['lavarse la cara','умываться'],['vestirse','одеваться'],['desayunar','завтракать'],['merendar','полдничать'],['acostarse','ложиться спать']]},
+  {type:'match',title:'Где и когда: слово и картинка',instr:'Нажми на слово, потом на нужную картинку.',pic:true,pairs:[['la ciudad','город'],['el campo','деревня'],['el centro comercial','торговый центр'],['el atardecer','закат'],['el salón','гостиная'],['el dormitorio','спальня'],['las redes sociales','соцсети']]},
+  {type:'choice',title:'Текст 1: вопросы',instr:'Сначала послушай текст «Un día de Lucía», потом выбери ответ.',items:[
+   {q:'Lucía vive en ___.',o:['la ciudad','el campo','el centro comercial'],a:'la ciudad',img:'la ciudad'},
+   {q:'Suele despertarse a las ___.',o:['siete','ocho y media','diez'],a:'siete',img:'despertarse'},
+   {q:'Desayuna en ___.',o:['la cocina','el salón','el dormitorio'],a:'la cocina',img:'desayunar'},
+   {q:'Almuerza en el colegio a las ___.',o:['dos','cinco','nueve'],a:'dos',img:'almorzar'},
+   {q:'Merienda pan con chocolate en ___.',o:['el salón','la cocina','el campo'],a:'el salón',img:'merendar'},
+   {q:'Los sábados va de compras al ___.',o:['centro comercial','campo','colegio'],a:'centro comercial',img:'ir de compras'},
+   {q:'Los domingos va al ___ con sus abuelos.',o:['campo','centro comercial','salón'],a:'campo',img:'el campo'},
+   {q:'Le gusta mucho ver ___.',o:['el atardecer','las redes sociales','la televisión'],a:'el atardecer',img:'el atardecer'},
+   {q:'Se acuesta a las ___.',o:['diez','nueve','siete'],a:'diez',img:'acostarse'}]},
+  {type:'choice',title:'Текст 1: возвратные глаголы',instr:'Выбери форму, как в тексте. Подсказка в правиле «Возвратные глаголы».',items:[
+   {q:'Es temprano, pero ___ rápido.',o:['me levanto','se levanta','levanto'],a:'me levanto'},
+   {q:'Primero ___ la cara.',o:['me lavo','se lava','lavo'],a:'me lavo'},
+   {q:'Y después ___.',o:['me visto','me viste','visto'],a:'me visto'},
+   {q:'A las diez ___ en mi dormitorio.',o:['me acuesto','me acosto','se acuesta'],a:'me acuesto'},
+   {q:'Lucía ___ a las siete.',o:['se despierta','me despierto','despierta'],a:'se despierta'},
+   {q:'Suelo ___ a las siete.',o:['despertarme','me despertar','despertarse'],a:'despertarme'}]},
+  {type:'type',title:'Текст 1: soler',instr:'Впиши форму soler. Все фразы про Лусию и её семью.',items:[
+   {q:'Yo ___ despertarme a las siete.',a:['suelo']},
+   {q:'Lucía ___ desayunar en la cocina.',a:['suele']},
+   {q:'Los domingos nosotros ___ ir al campo.',a:['solemos']},
+   {q:'Sus padres ___ cenar a las nueve.',a:['suelen']},
+   {q:'¿Tú ___ ver el atardecer?',a:['sueles']},
+   {q:'¿Vosotros ___ ir de compras al centro comercial?',a:['soléis']}]},
+  {type:'choice',title:'Текст 1: gusta или gustan?',instr:'Смотри, одна вещь или много.',items:[
+   {q:'Me ___ mucho ver el atardecer.',o:['gusta','gustan'],a:'gusta'},
+   {q:'A Lucía le ___ las redes sociales.',o:['gusta','gustan'],a:'gustan'},
+   {q:'A Lucía le ___ el campo.',o:['gusta','gustan'],a:'gusta'},
+   {q:'Me ___ las magdalenas.',o:['gusta','gustan'],a:'gustan'},
+   {q:'Nos ___ pasear con el perro.',o:['gusta','gustan'],a:'gusta'},
+   {q:'¿Te ___ los centros comerciales?',o:['gusta','gustan'],a:'gustan'}]},
+  {type:'match',title:'Текст 1: который час?',instr:'Время из дня Лусии. Соедини часы и фразу.',pairs:[['07:00','Son las siete'],['08:30','Son las ocho y media'],['14:00','Son las dos'],['17:00','Son las cinco'],['21:00','Son las nueve de la noche'],['22:00','Son las diez de la noche']]},
+  {type:'type',title:'Где это происходит?',instr:'Вставь cocina, salón или dormitorio, как в текстах.',items:[
+   {q:'Lucía desayuna en la ___.',a:['cocina']},
+   {q:'Merienda en el ___.',a:['salón']},
+   {q:'Se acuesta en su ___.',a:['dormitorio']},
+   {q:'Texto 2: antes de ir a la cocina, entro en el ___.',a:['salón']}]},
+  {type:'order',title:'Текст 1: собери фразу',instr:'Перетаскивай слова в строку в правильном порядке (или просто нажимай на них).',items:[
+   {s:'Suelo despertarme a las siete de la mañana.',ru:'Я обычно просыпаюсь в семь утра.',img:'despertarse'},
+   {s:'Primero me lavo la cara y después me visto.',ru:'Сначала я умываюсь, а потом одеваюсь.',img:'lavarse la cara'},
+   {s:'Por la tarde paseo con mi perro.',ru:'После обеда я гуляю с собакой.',img:'pasear'},
+   {s:'A las diez me acuesto en mi dormitorio.',ru:'В десять я ложусь спать в своей спальне.',img:'acostarse'}]},
+  {type:'translate',title:'Текст 1: переведи',instr:'Напиши фразу по-испански. Все фразы есть в тексте «Un día de Lucía».',items:[
+   {q:'Я обычно просыпаюсь в семь.',a:['Suelo despertarme a las siete','Suelo despertarme a las 7']},
+   {q:'Сначала я умываюсь, потом одеваюсь.',a:['Primero me lavo la cara y después me visto','Primero me lavo la cara y luego me visto']},
+   {q:'Я завтракаю на кухне.',a:['Desayuno en la cocina']},
+   {q:'Мне очень нравится смотреть на закат.',a:['Me gusta mucho ver el atardecer']},
+   {q:'Я ужинаю в девять вечера.',a:['Ceno a las nueve de la noche','Ceno a las 9 de la noche']},
+   {q:'В десять я ложусь спать.',a:['A las diez me acuesto','Me acuesto a las diez','A las 10 me acuesto','Me acuesto a las 10']}]},
+  {type:'choice',title:'Испанские часы еды (видео, с. 43)',instr:'Как в учебнике на с. 43: когда едят испанцы?',items:[
+   {q:'En España se come a las ___.',o:['doce','dos o tres de la tarde'],a:'dos o tres de la tarde'},
+   {q:'En España se cena a las ___.',o:['siete de la tarde','nueve o diez de la noche'],a:'nueve o diez de la noche'},
+   {q:'Los horarios de las comidas de los españoles son ___.',o:['tempranos','tardíos'],a:'tardíos'},
+   {q:'«Las tres de la tarde» es…',o:['15:00','03:00'],a:'15:00'},
+   {q:'«La una de la tarde» es…',o:['13:00','01:00'],a:'13:00'}]},
   {type:'cards',title:'Новые слова из текста «Voy a desayunar»',src:'Учебник, текст «Voy a desayunar»',words:[
    ['abrir los ojos','открыть глаза'],['el ojo','глаз'],['tener hambre','хотеть есть, быть голодным'],['la cama','кровать'],['salir de la cama','вылезать из кровати'],
    ['de un salto','одним прыжком'],['estirarse','потягиваться'],['bostezar','зевать'],['esperar','ждать'],['el vaso','стакан'],['la leche','молоко'],['el cacao','какао'],
@@ -660,10 +738,11 @@ const LESSONS=[
    ['la puerta','дверь'],['con cuidado','осторожно, аккуратно'],['tomarse','съесть, выпить'],['de un bocado','одним укусом, разом'],['beberse','выпить (до дна)'],
    ['el Colacao','Колакао: какао-напиток'],['irse','уходить'],['sacar (saco)','доставать (я достаю)'],['el bolígrafo','ручка'],['escribir','писать'],
    ['detrás de','на обороте, позади'],['la nota','записка'],['los padres','родители'],['comprar','покупать'],['la pizza','пицца'],['poder (podéis)','мочь (вы можете)']]},
-  {type:'story',title:'Voy a desayunar',src:'Текст из учебника. Синие слова новые, подчёркнутые пунктиром уже знакомы.',paras:[
+  {type:'story',title:'Voy a desayunar',src:'Текст из учебника. Он сложнее первого: сначала послушай и попробуй понять сама, потом открывай 🇫🇷.',paras:[
    '{Abro los ojos|открываю глаза (abrir los ojos)}: {tengo hambre|я голодна, хочу есть (tener hambre)}.',
-   '{Salgo|выхожу, вылезаю (salir)} {de un salto|одним прыжком} de la {cama|кровать (la cama)}, {me estiro|потягиваюсь (estirarse)} y {bostezo|зеваю (bostezar)}. En la [cocina|кухня (la cocina)] {me espera|меня ждёт (esperar)} un {vaso|стакан (el vaso)} de {leche|молоко (la leche)} con {cacao|какао (el cacao)} y una {magdalena|кекс, маффин (la magdalena)}. {Después de|после того как} [lavarme la cara|умыться (lavarse la cara)] {en un plis plas|мигом, в два счёта}, [vestirme|одеться (vestirse)] y {colgarme la mochila al hombro|повесить рюкзак на плечо}, {entro|вхожу (entrar)} en el [salón|гостиная (el salón)] {antes de|перед тем как} ir a la [cocina|кухня (la cocina)]. {Cierro|закрываю (cerrar)} la {puerta|дверь (la puerta)} {con cuidado|осторожно} y [voy a desayunar|иду завтракать (desayunar)]. {Me tomo|съедаю (tomarse)} la {magdalena|кекс, маффин (la magdalena)} {de un bocado|одним укусом}, {me bebo|выпиваю (beberse)} el {Colacao|Колакао: испанский какао-напиток}. {Antes de irme|перед тем как уйти (irse)}, {saco|достаю (sacar)} un {bolígrafo|ручка (el bolígrafo)} de mi {mochila|рюкзак (la mochila)} y {escribo|пишу (escribir)} {detrás de|на обороте} la {nota|записка (la nota)} de mis [padres|родители (los padres)]: «Para [cenar|ужинать (cenar)], ¿{podéis|вы можете (poder)} {comprar|купить (comprar)} una {pizza|пицца (la pizza)}?».']},
-  {type:'choice',title:'По тексту «Voy a desayunar»',instr:'Сначала послушай текст, потом выбери правильный ответ.',items:[
+   '{Salgo|выхожу, вылезаю (salir)} {de un salto|одним прыжком} de la {cama|кровать (la cama)}, {me estiro|потягиваюсь (estirarse)} y {bostezo|зеваю (bostezar)}. En la [cocina|кухня (la cocina)] {me espera|меня ждёт (esperar)} un {vaso|стакан (el vaso)} de {leche|молоко (la leche)} con {cacao|какао (el cacao)} y una {magdalena|кекс, маффин (la magdalena)}. {Después de|после того как} [lavarme la cara|умыться (lavarse la cara)] {en un plis plas|мигом, в два счёта}, [vestirme|одеться (vestirse)] y {colgarme la mochila al hombro|повесить рюкзак на плечо}, {entro|вхожу (entrar)} en el [salón|гостиная (el salón)] {antes de|перед тем как} ir a la [cocina|кухня (la cocina)]. {Cierro|закрываю (cerrar)} la {puerta|дверь (la puerta)} {con cuidado|осторожно} y [voy a desayunar|иду завтракать (desayunar)]. {Me tomo|съедаю (tomarse)} la {magdalena|кекс, маффин (la magdalena)} {de un bocado|одним укусом}, {me bebo|выпиваю (beberse)} el {Colacao|Колакао: испанский какао-напиток}. {Antes de irme|перед тем как уйти (irse)}, {saco|достаю (sacar)} un {bolígrafo|ручка (el bolígrafo)} de mi {mochila|рюкзак (la mochila)} y {escribo|пишу (escribir)} {detrás de|на обороте} la {nota|записка (la nota)} de mis [padres|родители (los padres)]: «Para [cenar|ужинать (cenar)], ¿{podéis|вы можете (poder)} {comprar|купить (comprar)} una {pizza|пицца (la pizza)}?».'],
+   fr:[["J'ouvre les yeux : j'ai faim."],["Je saute du lit, je m'étire et je bâille.","Dans la cuisine, un verre de lait au cacao et une madeleine m'attendent.","Après m'être lavé le visage en un clin d'œil, m'être habillée et avoir mis mon sac à dos sur l'épaule, j'entre dans le salon avant d'aller à la cuisine.","Je ferme la porte doucement et je vais prendre mon petit-déjeuner.","J'avale la madeleine d'une bouchée, je bois mon Colacao.","Avant de partir, je sors un stylo de mon sac à dos et j'écris au dos du mot de mes parents : « Pour le dîner, vous pouvez acheter une pizza ? »"]]},
+  {type:'choice',title:'Текст 2: вопросы',instr:'Сначала послушай текст, потом выбери правильный ответ.',items:[
    {q:'Cuando abre los ojos, tiene ___.',o:['hambre','frío','sueño'],a:'hambre'},
    {q:'Sale de la cama ___.',o:['de un salto','con cuidado','a las diez'],a:'de un salto'},
    {q:'En la cocina le espera un vaso de ___ con cacao.',o:['leche','zumo','agua'],a:'leche'},
@@ -672,9 +751,10 @@ const LESSONS=[
    {q:'Cierra la puerta ___.',o:['con cuidado','de un bocado','de un salto'],a:'con cuidado'},
    {q:'De la mochila saca ___.',o:['un bolígrafo','un móvil','un libro'],a:'un bolígrafo'},
    {q:'Para cenar quiere ___.',o:['una pizza','churros','una magdalena'],a:'una pizza'}]},
-  {type:'match',title:'Слова из текста',instr:'Соедини испанское слово и перевод.',pairs:[['bostezar','зевать'],['estirarse','потягиваться'],['el hombro','плечо'],['la mochila','рюкзак'],['el bolígrafo','ручка'],['la puerta','дверь'],['la magdalena','кекс, маффин']]},
-  {type:'match',title:'Выражения из текста',instr:'Соедини выражение и перевод.',pairs:[['tener hambre','хотеть есть'],['de un salto','одним прыжком'],['en un plis plas','мигом, в два счёта'],['con cuidado','осторожно'],['de un bocado','одним укусом'],['antes de','перед тем как'],['después de','после того как']]},
-  {type:'type',title:'Что я делаю утром?',instr:'Впиши глагол в форме «я», как в тексте. В скобках неопределённая форма.',items:[
+  {type:'match',title:'Текст 2: слово и картинка',instr:'Нажми на слово, потом на нужную картинку.',pic:true,pairs:[['bostezar','зевать'],['estirarse','потягиваться'],['la mochila','рюкзак'],['el bolígrafo','ручка'],['la magdalena','кекс'],['el vaso','стакан'],['la nota','записка']]},
+  {type:'match',title:'Текст 2: ещё слова и картинки',instr:'Нажми на слово, потом на нужную картинку.',pic:true,pairs:[['abrir los ojos','открыть глаза'],['tener hambre','хотеть есть'],['de un salto','одним прыжком'],['entrar','входить'],['con cuidado','осторожно'],['beberse','выпить'],['comprar','покупать']]},
+  {type:'match',title:'Текст 2: выражения',instr:'Соедини выражение и перевод.',pairs:[['tener hambre','хотеть есть'],['de un salto','одним прыжком'],['en un plis plas','мигом, в два счёта'],['con cuidado','осторожно'],['de un bocado','одним укусом'],['antes de','перед тем как'],['después de','после того как']]},
+  {type:'type',title:'Текст 2: глаголы в форме «я»',instr:'Впиши глагол в форме «я», как в тексте. В скобках неопределённая форма.',items:[
    {q:'___ los ojos.',a:['Abro','abro'],h:'abrir'},
    {q:'___ de un salto de la cama.',a:['Salgo','salgo'],h:'salir'},
    {q:'Me estiro y ___.',a:['bostezo'],h:'bostezar'},
@@ -682,60 +762,17 @@ const LESSONS=[
    {q:'___ la puerta con cuidado.',a:['Cierro','cierro'],h:'cerrar'},
    {q:'___ un bolígrafo de mi mochila.',a:['Saco','saco'],h:'sacar'},
    {q:'___ detrás de la nota de mis padres.',a:['Escribo','escribo'],h:'escribir'}]},
-  {type:'type',title:'Комнаты в доме',instr:'Вставь salón, dormitorio или cocina, как в тексте «Voy a desayunar».',items:[
-   {q:'El narrador se despierta en su ___.',a:['dormitorio']},
-   {q:'Antes de desayunar, entra en el ___.',a:['salón']},
-   {q:'En la ___ le espera un vaso de leche.',a:['cocina']}]},
-  {type:'order',title:'Фразы из текста',instr:'Перетаскивай слова в строку в правильном порядке (или просто нажимай на них).',items:[
-   {s:'Abro los ojos: tengo hambre.',ru:'Я открываю глаза: я хочу есть.'},
-   {s:'Cierro la puerta con cuidado.',ru:'Я осторожно закрываю дверь.'},
-   {s:'Me tomo la magdalena de un bocado.',ru:'Я съедаю кекс одним укусом.'},
-   {s:'Saco un bolígrafo de mi mochila.',ru:'Я достаю ручку из рюкзака.'}]},
-  {type:'translate',title:'Переведи фразы из текста',instr:'Напиши фразу по-испански.',items:[
+  {type:'order',title:'Текст 2: собери фразу',instr:'Перетаскивай слова в строку в правильном порядке (или просто нажимай на них).',items:[
+   {s:'Abro los ojos: tengo hambre.',img:'abrir los ojos',ru:'Я открываю глаза: я хочу есть.'},
+   {s:'Cierro la puerta con cuidado.',img:'la puerta',ru:'Я осторожно закрываю дверь.'},
+   {s:'Me tomo la magdalena de un bocado.',img:'de un bocado',ru:'Я съедаю кекс одним укусом.'},
+   {s:'Saco un bolígrafo de mi mochila.',img:'sacar',ru:'Я достаю ручку из рюкзака.'}]},
+  {type:'translate',title:'Текст 2: переведи',instr:'Напиши фразу по-испански.',items:[
    {q:'Я хочу есть.',a:['Tengo hambre']},
    {q:'Я открываю глаза.',a:['Abro los ojos']},
    {q:'Я потягиваюсь и зеваю.',a:['Me estiro y bostezo']},
    {q:'Я осторожно закрываю дверь.',a:['Cierro la puerta con cuidado','Cierro con cuidado la puerta']},
    {q:'Вы можете купить пиццу?',a:['¿Podéis comprar una pizza?','¿Puedes comprar una pizza?','¿Pueden comprar una pizza?']}]},
-  {type:'match',title:'Мой распорядок',instr:'Соедини глагол и перевод.',pairs:[['despertarse','просыпаться'],['levantarse','вставать'],['vestirse','одеваться'],['desayunar','завтракать'],['merendar','полдничать'],['cenar','ужинать'],['acostarse','ложиться спать']]},
-  {type:'choice',title:'Gusta или gustan?',instr:'Смотри, одна вещь или много.',items:[
-   {q:'No me ___ los centros comerciales.',o:['gusta','gustan'],a:'gustan'},
-   {q:'Me ___ el atardecer.',o:['gusta','gustan'],a:'gusta'},
-   {q:'A mis padres les ___ la tortilla de patatas.',o:['encanta','encantan'],a:'encanta'},
-   {q:'Nos ___ ir de compras los domingos.',o:['encanta','encantan'],a:'encanta'},
-   {q:'¿Te ___ los animales?',o:['gusta','gustan'],a:'gustan'},
-   {q:'Me ___ desayunar temprano.',o:['gusta','gustan'],a:'gusta'}]},
-  {type:'type',title:'Soler',instr:'Впиши форму soler.',items:[
-   {q:'Nosotros ___ comer churros los domingos.',a:['solemos']},
-   {q:'Tu hermano ___ beber chocolate.',a:['suele']},
-   {q:'Yo ___ acostarme temprano.',a:['suelo']},
-   {q:'Vosotros ___ cenar a las diez de la noche.',a:['soléis']},
-   {q:'¿Cómo ___ despertarte (tú)?',a:['sueles']},
-   {q:'Mis abuelos ___ pasear por el campo.',a:['suelen']}]},
-  {type:'choice',title:'Возвратные глаголы',instr:'Выбери правильный вариант.',items:[
-   {q:'Yo ___ a las siete.',o:['me levanto','se levanta','levanto'],a:'me levanto'},
-   {q:'Mi hermano desayuna después de ___.',o:['se vestir','vestirse','vestirme'],a:'vestirse'},
-   {q:'Me gusta ___ temprano.',o:['me levantar','levantarme','levantarse'],a:'levantarme'},
-   {q:'Nosotros ___ a las diez.',o:['nos acostamos','se acuestan','nos acuestamos'],a:'nos acostamos'},
-   {q:'No quieres ___ la cara.',o:['lavarte','te lavar','lavarse'],a:'lavarte'}]},
-  {type:'match',title:'Который час?',instr:'Соедини часы и фразу.',pairs:[['07:00','Son las siete'],['08:30','Son las ocho y media'],['12:15','Son las doce y cuarto'],['13:00','Es la una'],['16:45','Son las cinco menos cuarto'],['22:00','Son las diez de la noche']]},
-  {type:'choice',title:'Испанские часы еды',instr:'Как в учебнике на с. 43: когда едят испанцы?',items:[
-   {q:'En España se come a las ___.',o:['doce','dos o tres de la tarde'],a:'dos o tres de la tarde'},
-   {q:'En España se cena a las ___.',o:['siete de la tarde','nueve o diez de la noche'],a:'nueve o diez de la noche'},
-   {q:'Los horarios de las comidas de los españoles son ___.',o:['tempranos','tardíos'],a:'tardíos'},
-   {q:'«Las tres de la tarde» es…',o:['15:00','03:00'],a:'15:00'},
-   {q:'«La una de la tarde» es…',o:['13:00','01:00'],a:'13:00'}]},
-  {type:'order',title:'Перетащи слова во фразу',instr:'Перетаскивай слова в строку в правильном порядке (или просто нажимай на них).',items:[
-   {s:'¿Cómo sueles despertarte?',ru:'Как ты обычно просыпаешься?'},
-   {s:'¿Sueles ver el atardecer?',ru:'Ты часто смотришь на закат?'},
-   {s:'Me despierto a las siete de la mañana.',ru:'Я просыпаюсь в семь утра.'}]},
-  {type:'translate',title:'Переведи с русского',instr:'Напиши фразу по-испански.',items:[
-   {q:'Который час?',a:['¿Qué hora es?']},
-   {q:'Я встаю в семь.',a:['Me levanto a las siete','Me levanto a las 7']},
-   {q:'Я обычно завтракаю в восемь.',a:['Suelo desayunar a las ocho','Suelo desayunar a las 8','Normalmente desayuno a las ocho']},
-   {q:'Мне нравится закат.',a:['Me gusta el atardecer']},
-   {q:'Мне нравятся животные.',a:['Me gustan los animales']},
-   {q:'Я ложусь спать в десять.',a:['Me acuesto a las diez','Me acuesto a las 10']}]},
   {type:'write',title:'Мини-проект: мой день',instr:'Напиши 4 фразы о своём дне с указанием времени. Подсказки можно нажимать.',starters:['Suelo despertarme a las ','Me levanto a las ','Desayuno a las ','Almuerzo en el colegio a las ','Meriendo a las ','Ceno a las ','Me acuesto a las ','Me gusta ','No me gusta '],min:4}
  ]},
 
@@ -849,8 +886,8 @@ navidad:{title:'Ждём Королей-волхвов',hero:'👧',goal:'🎁',
  end:'¡Gracias, Reyes Magos! ¡Qué alegría!',endRu:'Спасибо, Короли-волхвы! Какая радость!'}
 };
 LESSONS.forEach(L=>{if(L.custom)return;
-  L.ex.forEach(x=>{if(x.type==='pics'&&!x.words)x.words=L.words});
   const pool=L.words.concat(...L.ex.filter(x=>x.type==='cards').map(x=>x.words));
+  L.ex.forEach(x=>{if(x.type==='pics'&&!x.words)x.words=pool});
   L.ex.unshift(
     {type:'memory',title:'Memory: найди пару',instr:'Переворачивай по две карточки и ищи пары: испанское слово и его перевод с картинкой. Испанские слова озвучиваются. Чем меньше ходов, тем лучше! Кнопка «Новая игра» берёт другие слова из этого занятия.',words:pool},
     {type:'anagram',title:'Анаграммы',instr:'Буквы перепутались! Нажимай на них по порядку и собери испанское слово. Подсказка — картинка и перевод. ⌫ стирает последнюю букву.',words:pool},
@@ -933,9 +970,9 @@ function exChoice(ex,finish){
       opts.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad'));
       if(o===it.a){solved=true;b.classList.add('ok');fb.className='fb ok';fb.textContent=it.n?'Верно! '+it.n:'Верно!';
         fb.append(spk(/^(V|F|Sí|No)$/.test(o)?it.q:it.q.replace('___',o)));if(--left===0)finish()}
-      else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');fb.className='fb bad';fb.textContent='Не совсем. Нажми ещё раз, чтобы стереть, или выбери другой ответ.'}
+      else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');fb.className='fb bad';fb.textContent='Не совсем. Правильный ответ: '+it.a+'. Нажми на него.'}
     }},o)));
-    box.append(el('div',{class:'row'},el('div',{class:'q'},it.q),opts,fb));
+    box.append(el('div',{class:'row'},it.img&&pic(it.img)?el('img',{class:'qimg',src:pic(it.img),alt:''}):null,el('div',{class:'q'},it.q),opts,fb));
   });
   return box;
 }
@@ -964,11 +1001,11 @@ function exType(ex,finish){
       const hit=o.it.a.find(x=>nopunct(x)===nopunct(v));
       const near=!hit&&o.it.a.find(x=>loose(x)===loose(v));
       if(hit){o.inp.classList.remove('bad');o.inp.classList.add('ok');o.inp.disabled=true;
-        o.fb.className='fb ok';o.fb.textContent='';}
+        const full=tr?o.it.a[0]:o.it.q.replace('___',o.it.a[0]);o.fb.className='fb ok';o.fb.textContent='✓ '+full;o.fb.append(spk(full));}
       else if(near){all=false;o.wrong=v;o.inp.classList.add('bad');o.fb.className='fb bad';
         o.fb.textContent='Почти! Проверь ударение (á, é, í, ó, ú, ñ). Нажми «Проверить» ещё раз, чтобы стереть.';}
       else{all=false;o.tries++;o.wrong=v;o.inp.classList.add('bad');o.fb.className='fb bad';
-        o.fb.textContent=o.tries>=2?`Правильный ответ: ${o.it.a[0]}. Впиши его.`:'Не совсем. Нажми «Проверить» ещё раз, чтобы стереть, и попробуй снова.'}
+        o.fb.textContent=`Не совсем. Правильный ответ: ${o.it.a[0]}. Нажми «Проверить» ещё раз, чтобы стереть, и впиши его.`}
     });
     if(all&&inputs.every(o=>o.inp.disabled))finish();
   }
@@ -982,10 +1019,10 @@ function exMatch(ex,finish){
   const clearBad=()=>R.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad'));
   lefts.forEach(o=>{const b=el('button',{class:'chip',type:'button',onclick:()=>{if(b.classList.contains('ok'))return;clearBad();
     L.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');sel={b,i:o.i}}},o.t);L.append(b)});
-  rights.forEach(o=>{const b=el('button',{class:'chip',type:'button',onclick:()=>{if(b.classList.contains('bad')){b.classList.remove('bad');return}
+  rights.forEach(o=>{const im=ex.pic&&pic(ex.pairs[o.i][0]);const b=el('button',{class:'chip'+(im?' pchip':''),type:'button','aria-label':o.t,onclick:()=>{if(b.classList.contains('bad')){b.classList.remove('bad');return}
     if(!sel||b.classList.contains('ok'))return;clearBad();
     if(sel.i===o.i){sel.b.classList.remove('sel');sel.b.classList.add('ok');b.classList.add('ok');sel=null;if(--left===0)finish()}
-    else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad')}}},o.t);R.append(b)});
+    else{b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad')}}},im?el('img',{src:im,alt:''}):o.t);R.append(b)});
   return el('div',{class:'match'},L,R);
 }
 
@@ -999,7 +1036,7 @@ function exOrder(ex,finish){
     const changed=()=>{line.classList.remove('bad');fb.className='fb';fb.textContent='';
       if(!pool.children.length){const got=[...line.children].map(x=>x.textContent).join(ex.join?'':' ');
         if(got===target){solved=true;line.classList.add('ok');line.append(spk(target));fb.className='fb ok';fb.textContent='Верно!';if(--left===0)finish()}
-        else{void line.offsetWidth;line.classList.add('bad');fb.className='fb bad';fb.textContent='Не совсем. Нажми «Проверить» ещё раз, чтобы стереть, и собери снова.'}}};
+        else{void line.offsetWidth;line.classList.add('bad');fb.className='fb bad';fb.textContent='Не совсем. Правильно: '+target+' Нажми «Проверить», чтобы собрать снова.'}}};
     resets.push(()=>{if(solved||!line.classList.contains('bad'))return;
       shuffle([...line.children]).forEach(t=>pool.append(t));line.classList.remove('bad');fb.className='fb';fb.textContent='Попробуй снова.'});
     const mk=(t)=>{const b=el('button',{class:'tok'+(ex.join?' sy':''),type:'button',onclick:e=>{
@@ -1027,7 +1064,7 @@ function exOrder(ex,finish){
       return b};
     let sh=shuffle(parts);if(parts.length>1)while(sh.join()===parts.join())sh=shuffle(parts);
     sh.forEach(t=>pool.append(mk(t)));
-    box.append(el('div',{class:'order-item'},el('div',{class:'ru'},it.ru),line,pool,fb));
+    box.append(el('div',{class:'order-item'},it.img&&pic(it.img)?el('img',{class:'qimg',src:pic(it.img),alt:''}):null,el('div',{class:'ru'},it.ru),line,pool,fb));
   });
   box.append(el('div',{class:'actions'},el('button',{class:'btn',type:'button',onclick:()=>resets.forEach(f=>f())},'Проверить')));
   return box;
@@ -1078,12 +1115,20 @@ const sayEs=es=>es.replace(/\s*\(.*?\)/g,'');
 const PIC={'despertarse':'despertarse','levantarse':'levantarse','lavarse la cara':'lavarse','vestirse':'vestirse','desayunar':'desayunar',
  'almorzar':'almorzar','merendar':'merendar','cenar':'cenar','acostarse':'acostarse','pasear':'pasear','ir de compras':'compras','temprano':'temprano',
  'el atardecer':'atardecer','la ciudad':'ciudad','el campo':'campo','el centro comercial':'centro','la cocina':'cocina','el salón':'salon',
- 'el dormitorio':'dormitorio','las redes sociales':'redes'};
-const pic=es=>{const k=PIC[es.toLowerCase().trim()];return k?'dia/'+k+'.jpg':''};
+ 'el dormitorio':'dormitorio','las redes sociales':'redes',
+ 'abrir los ojos':'t_abrir_ojos','el ojo':'t_ojo','tener hambre':'t_hambre','la cama':'t_cama','salir de la cama':'t_salir_cama','salir':'t_salir_cama',
+ 'de un salto':'t_salto','estirarse':'t_estirarse','bostezar':'t_bostezar','esperar':'t_esperar','el vaso':'t_vaso','la leche':'t_leche','el cacao':'t_cacao',
+ 'la magdalena':'t_magdalena','después de':'t_despues','en un plis plas':'t_plis','la mochila':'t_mochila','el hombro':'t_hombro',
+ 'colgarse la mochila al hombro':'t_hombro','colgarme la mochila al hombro':'t_hombro','entrar':'t_entrar','antes de':'t_antes','cerrar (cierro)':'t_cerrar','cerrar':'t_cerrar',
+ 'la puerta':'t_puerta','con cuidado':'t_cuidado','tomarse':'t_tomarse','de un bocado':'t_bocado','beberse':'t_beberse','el colacao':'t_colacao','colacao':'t_colacao',
+ 'irse':'t_irse','sacar (saco)':'t_sacar','sacar':'t_sacar','el bolígrafo':'t_boligrafo','escribir':'t_escribir','detrás de':'t_detras','la nota':'t_nota',
+ 'los padres':'t_padres','comprar':'t_comprar','la pizza':'t_pizza','poder (podéis)':'t_poder','poder':'t_poder'};
+const pic=es=>{const k=PIC[String(es).toLowerCase().trim()];return k?'dia/'+k+'.jpg':''};
+const NOQUIZ=new Set(['después de','antes de','colgarse la mochila al hombro','salir de la cama']);
 
 /* ---------- picture quiz: see the picture, pick the word / hear the word, pick the picture ---------- */
 function exPics(ex,finish){
-  const all=ex.words.filter(w=>pic(w[0]));const per=Math.min(ex.n||10,all.length);
+  const all=ex.words.filter(w=>pic(w[0])&&!NOQUIZ.has(w[0].toLowerCase()));const per=Math.min(ex.n||10,all.length);
   const box=el('div',{class:'pq'});let doneOnce=false;
   function start(){
     const qs=shuffle(all).slice(0,per);let i=0;
@@ -1136,7 +1181,7 @@ function memoryGame(pool,finish,opts={}){
       const [es,ru]=c.p;const e=emo(es);
       const face=el('span',{class:'mm-side mm-face'});
       if(c.side==='es')face.append(el('span',{class:'w',lang:'es'},es));
-      else{if(e)face.append(el('span',{class:'e','aria-hidden':'true'},e));face.append(el('span',{class:'t',lang:'ru'},ru))}
+      else{const im=pic(es);if(im)face.append(el('img',{class:'mi',src:im,alt:''}));else if(e)face.append(el('span',{class:'e','aria-hidden':'true'},e));face.append(el('span',{class:'t',lang:'ru'},ru))}
       const b=el('button',{class:'mm',type:'button','aria-label':'Закрытая карточка'},
         el('span',{class:'mm-in'},el('span',{class:'mm-side mm-back','aria-hidden':'true'},el('b',{},'?')),face));
       b.onclick=()=>{
@@ -1375,16 +1420,20 @@ function storyCard(t){
   let slow=false;
   const slowB=el('button',{class:'btn ghost',type:'button','aria-pressed':'false'},'🐢 Медленно');
   slowB.addEventListener('click',()=>{slow=!slow;slowB.setAttribute('aria-pressed',String(slow))});
-  c.append(el('div',{class:'player'},main,again,slowB));
+  const frAll=t.fr?el('button',{class:'btn ghost',type:'button','aria-pressed':'false'},'🇫🇷 Весь перевод'):null;
+  c.append(el('div',{class:'player'},main,again,slowB,frAll));
+  if(t.fr)c.append(el('p',{class:'tip'},'Не понятно? Нажми 🇫🇷 после предложения, и появится перевод на французский. Сначала попробуй понять сама!'));
   const glossed=t.paras.some(p=>GLOSS.test(p));GLOSS.lastIndex=0;
-  if(glossed)c.append(el('p',{class:'tip'},'Нажми на выделенное слово, и появится перевод. Синие слова новые. Двойной клик по предложению: читать с него.'));
+  if(glossed)c.append(el('p',{class:'tip'},'Нажми на выделенное слово, и появится перевод с картинкой. Двойной клик по предложению: читать с него.'));
   /* popover with translation */
   const pop=el('div',{class:'gpop',role:'status',hidden:''});let popFor=null;
   const closePop=()=>{pop.hidden=true;if(popFor)popFor.classList.remove('open');popFor=null};
   const openPop=(btn,es,ru)=>{
     if(popFor===btn){closePop();return}
     closePop();popFor=btn;btn.classList.add('open');
-    pop.innerHTML='';pop.append(el('span',{},el('span',{class:'es'},es),' — ',el('span',{class:'ru'},ru)),
+    pop.innerHTML='';const lm=ru.match(/\(([^)]+)\)\s*$/);const im=pic(lm?lm[1]:es);
+    if(im)pop.append(el('img',{class:'gimg',src:im,alt:''}));
+    pop.append(el('span',{},el('span',{class:'es'},es),' — ',el('span',{class:'ru'},ru)),
       el('button',{class:'say',type:'button','aria-label':'Послушать '+es,title:'Послушать',html:SPK,onclick:e=>{e.stopPropagation();say(es)}}),
       el('button',{class:'gx',type:'button','aria-label':'Закрыть',title:'Закрыть',onclick:e=>{e.stopPropagation();closePop()}},'✕'));
     pop.hidden=false;
@@ -1406,9 +1455,17 @@ function storyCard(t){
       b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();openPop(b,es,ru)}});
       sp.append(b);last=GLOSS.lastIndex}
     if(last<x.length)sp.append(x.slice(last))};
-  t.paras.forEach(p=>{const para=el('p');
-    (p.match(/[^.!?…]+[.!?…»]*\s*/g)||[p]).forEach(x=>{const sp=el('span',{class:'snt'});build(sp,x);spans.push(sp);texts.push(plainText(x).trim());para.append(sp)});
+  const frs=[];
+  t.paras.forEach((p,pi)=>{const para=el('p');
+    (p.match(/[^.!?…]+[.!?…»]*\s*/g)||[p]).forEach((x,si)=>{const sp=el('span',{class:'snt'});build(sp,x);spans.push(sp);texts.push(plainText(x).trim());para.append(sp);
+      const f=t.fr&&t.fr[pi]&&t.fr[pi][si];
+      if(f){const ft=el('span',{class:'frt',lang:'fr',hidden:''},f);frs.push(ft);
+        const fb=el('button',{class:'frb',type:'button','aria-label':'Перевод на французский',title:'Перевод на французский'},'🇫🇷');
+        fb.addEventListener('click',e=>{e.stopPropagation();ft.hidden=!ft.hidden;fb.classList.toggle('on',!ft.hidden)});
+        para.append(fb,ft,' ')}});
     c.append(para)});
+  if(frAll)frAll.addEventListener('click',()=>{const show=frAll.getAttribute('aria-pressed')!=='true';frAll.setAttribute('aria-pressed',String(show));
+    frs.forEach(f=>{f.hidden=!show;f.previousSibling.classList.toggle('on',show)})});
   c.append(pop);
   if(t.src)c.append(el('p',{class:'gloss'},t.src));
   if(t.gloss)c.append(el('p',{class:'gloss'},t.gloss));

@@ -125,6 +125,18 @@ input.blank.bad{border-color:var(--bad);background:var(--bad-soft);color:var(--b
 .story .snt.cur{background:var(--sun-soft);box-shadow:0 0 0 2px var(--sun-soft)}
 .story p{margin:0 0 10px;max-width:65ch}
 .story .gloss{font-size:14px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;margin:0}
+.story{position:relative}
+.story .gw{cursor:pointer;border-bottom:2px dotted var(--tile)}
+.story .gw:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.story .gw.new{color:var(--tile);font-weight:800;border-bottom-style:solid}
+.story .gw.open{background:var(--sun-soft)}
+.story .snt.said{background:var(--tile-soft)}
+.gpop{position:absolute;z-index:20;background:var(--card);border:2px solid var(--tile);border-radius:12px;padding:8px 10px;box-shadow:0 6px 18px rgba(0,0,0,.18);width:max-content;max-width:min(300px,calc(100% - 16px));display:flex;gap:8px;align-items:center}
+.gpop .es{font-weight:800}
+.gpop .ru{color:var(--muted);font-size:15px}
+.gpop .say{position:static;flex:none}
+.player .btn[aria-pressed="true"]{background:var(--sun-soft);border-color:var(--sun);color:var(--ink)}
+.story .tip{font-size:14px;color:var(--muted);margin:-4px 0 10px}
 .ru-q{flex:1 1 100%;font-weight:700}
 input.blank.wide{width:100%;text-align:left}
 .order-item{padding-block:10px;border-top:1px dashed var(--line)}
@@ -595,7 +607,7 @@ const LESSONS=[
    {q:'Двадцать второе декабря.',a:['El 22 de diciembre','El veintidós de diciembre','22 de diciembre','Veintidós de diciembre']}]}
  ]},
 
-{id:'leccion2',short:'Новое',title:'Мой день',pages:'Учебник с. 43 · Тетрадь с. 28–31',
+{id:'leccion2',short:'Новое',title:'Мой день',pages:'Учебник с. 43 и текст «Voy a desayunar» · Тетрадь с. 28–31',
  rules:[
   {h:'Me gusta и me gustan',html:`<table><tr><th>кому</th><th>одна вещь / действие</th><th>много вещей</th></tr>
    <tr><td>мне</td><td>me gusta</td><td>me gustan</td></tr><tr><td>тебе</td><td>te gusta</td><td>te gustan</td></tr>
@@ -623,6 +635,51 @@ const LESSONS=[
  ],
  words:[['despertarse','просыпаться'],['levantarse','вставать'],['lavarse la cara','умываться'],['vestirse','одеваться'],['desayunar','завтракать'],['almorzar','обедать'],['merendar','полдничать'],['cenar','ужинать'],['acostarse','ложиться спать'],['pasear','гулять'],['ir de compras','ходить по магазинам'],['temprano','рано'],['el atardecer','закат'],['la ciudad','город'],['el campo','деревня, природа'],['el centro comercial','торговый центр'],['la cocina','кухня'],['el salón','гостиная'],['el dormitorio','спальня'],['las redes sociales','соцсети']],
  ex:[
+  {type:'cards',title:'Новые слова из текста «Voy a desayunar»',src:'Учебник, текст «Voy a desayunar»',words:[
+   ['abrir los ojos','открыть глаза'],['el ojo','глаз'],['tener hambre','хотеть есть, быть голодным'],['la cama','кровать'],['salir de la cama','вылезать из кровати'],
+   ['de un salto','одним прыжком'],['estirarse','потягиваться'],['bostezar','зевать'],['esperar','ждать'],['el vaso','стакан'],['la leche','молоко'],['el cacao','какао'],
+   ['la magdalena','кекс, маффин'],['después de','после того как'],['en un plis plas','мигом, в два счёта'],['la mochila','рюкзак'],['el hombro','плечо'],
+   ['colgarse la mochila al hombro','повесить рюкзак на плечо'],['entrar','входить'],['antes de','перед тем как, до'],['cerrar (cierro)','закрывать (я закрываю)'],
+   ['la puerta','дверь'],['con cuidado','осторожно, аккуратно'],['tomarse','съесть, выпить'],['de un bocado','одним укусом, разом'],['beberse','выпить (до дна)'],
+   ['el Colacao','Колакао: какао-напиток'],['irse','уходить'],['sacar (saco)','доставать (я достаю)'],['el bolígrafo','ручка'],['escribir','писать'],
+   ['detrás de','на обороте, позади'],['la nota','записка'],['los padres','родители'],['comprar','покупать'],['la pizza','пицца'],['poder (podéis)','мочь (вы можете)']]},
+  {type:'story',title:'Voy a desayunar',src:'Текст из учебника. Синие слова новые, подчёркнутые пунктиром уже знакомы.',paras:[
+   '{Abro los ojos|открываю глаза (abrir los ojos)}: {tengo hambre|я голодна, хочу есть (tener hambre)}.',
+   '{Salgo|выхожу, вылезаю (salir)} {de un salto|одним прыжком} de la {cama|кровать (la cama)}, {me estiro|потягиваюсь (estirarse)} y {bostezo|зеваю (bostezar)}. En la [cocina|кухня (la cocina)] {me espera|меня ждёт (esperar)} un {vaso|стакан (el vaso)} de {leche|молоко (la leche)} con {cacao|какао (el cacao)} y una {magdalena|кекс, маффин (la magdalena)}. {Después de|после того как} [lavarme la cara|умыться (lavarse la cara)] {en un plis plas|мигом, в два счёта}, [vestirme|одеться (vestirse)] y {colgarme la mochila al hombro|повесить рюкзак на плечо}, {entro|вхожу (entrar)} en el [salón|гостиная (el salón)] {antes de|перед тем как} ir a la [cocina|кухня (la cocina)]. {Cierro|закрываю (cerrar)} la {puerta|дверь (la puerta)} {con cuidado|осторожно} y [voy a desayunar|иду завтракать (desayunar)]. {Me tomo|съедаю (tomarse)} la {magdalena|кекс, маффин (la magdalena)} {de un bocado|одним укусом}, {me bebo|выпиваю (beberse)} el {Colacao|Колакао: испанский какао-напиток}. {Antes de irme|перед тем как уйти (irse)}, {saco|достаю (sacar)} un {bolígrafo|ручка (el bolígrafo)} de mi {mochila|рюкзак (la mochila)} y {escribo|пишу (escribir)} {detrás de|на обороте} la {nota|записка (la nota)} de mis [padres|родители (los padres)]: «Para [cenar|ужинать (cenar)], ¿{podéis|вы можете (poder)} {comprar|купить (comprar)} una {pizza|пицца (la pizza)}?».']},
+  {type:'choice',title:'По тексту «Voy a desayunar»',instr:'Сначала послушай текст, потом выбери правильный ответ.',items:[
+   {q:'Cuando abre los ojos, tiene ___.',o:['hambre','frío','sueño'],a:'hambre'},
+   {q:'Sale de la cama ___.',o:['de un salto','con cuidado','a las diez'],a:'de un salto'},
+   {q:'En la cocina le espera un vaso de ___ con cacao.',o:['leche','zumo','agua'],a:'leche'},
+   {q:'Para desayunar hay una ___.',o:['magdalena','pizza','tortilla'],a:'magdalena'},
+   {q:'Antes de ir a la cocina, entra en ___.',o:['el salón','el dormitorio','el colegio'],a:'el salón'},
+   {q:'Cierra la puerta ___.',o:['con cuidado','de un bocado','de un salto'],a:'con cuidado'},
+   {q:'De la mochila saca ___.',o:['un bolígrafo','un móvil','un libro'],a:'un bolígrafo'},
+   {q:'Para cenar quiere ___.',o:['una pizza','churros','una magdalena'],a:'una pizza'}]},
+  {type:'match',title:'Слова из текста',instr:'Соедини испанское слово и перевод.',pairs:[['bostezar','зевать'],['estirarse','потягиваться'],['el hombro','плечо'],['la mochila','рюкзак'],['el bolígrafo','ручка'],['la puerta','дверь'],['la magdalena','кекс, маффин']]},
+  {type:'match',title:'Выражения из текста',instr:'Соедини выражение и перевод.',pairs:[['tener hambre','хотеть есть'],['de un salto','одним прыжком'],['en un plis plas','мигом, в два счёта'],['con cuidado','осторожно'],['de un bocado','одним укусом'],['antes de','перед тем как'],['después de','после того как']]},
+  {type:'type',title:'Что я делаю утром?',instr:'Впиши глагол в форме «я», как в тексте. В скобках неопределённая форма.',items:[
+   {q:'___ los ojos.',a:['Abro','abro'],h:'abrir'},
+   {q:'___ de un salto de la cama.',a:['Salgo','salgo'],h:'salir'},
+   {q:'Me estiro y ___.',a:['bostezo'],h:'bostezar'},
+   {q:'___ en el salón.',a:['Entro','entro'],h:'entrar'},
+   {q:'___ la puerta con cuidado.',a:['Cierro','cierro'],h:'cerrar'},
+   {q:'___ un bolígrafo de mi mochila.',a:['Saco','saco'],h:'sacar'},
+   {q:'___ detrás de la nota de mis padres.',a:['Escribo','escribo'],h:'escribir'}]},
+  {type:'type',title:'Комнаты в доме',instr:'Вставь salón, dormitorio или cocina, как в тексте «Voy a desayunar».',items:[
+   {q:'El narrador se despierta en su ___.',a:['dormitorio']},
+   {q:'Antes de desayunar, entra en el ___.',a:['salón']},
+   {q:'En la ___ le espera un vaso de leche.',a:['cocina']}]},
+  {type:'order',title:'Фразы из текста',instr:'Перетаскивай слова в строку в правильном порядке (или просто нажимай на них).',items:[
+   {s:'Abro los ojos: tengo hambre.',ru:'Я открываю глаза: я хочу есть.'},
+   {s:'Cierro la puerta con cuidado.',ru:'Я осторожно закрываю дверь.'},
+   {s:'Me tomo la magdalena de un bocado.',ru:'Я съедаю кекс одним укусом.'},
+   {s:'Saco un bolígrafo de mi mochila.',ru:'Я достаю ручку из рюкзака.'}]},
+  {type:'translate',title:'Переведи фразы из текста',instr:'Напиши фразу по-испански.',items:[
+   {q:'Я хочу есть.',a:['Tengo hambre']},
+   {q:'Я открываю глаза.',a:['Abro los ojos']},
+   {q:'Я потягиваюсь и зеваю.',a:['Me estiro y bostezo']},
+   {q:'Я осторожно закрываю дверь.',a:['Cierro la puerta con cuidado','Cierro con cuidado la puerta']},
+   {q:'Вы можете купить пиццу?',a:['¿Podéis comprar una pizza?','¿Puedes comprar una pizza?','¿Pueden comprar una pizza?']}]},
   {type:'match',title:'Мой распорядок',instr:'Соедини глагол и перевод.',pairs:[['despertarse','просыпаться'],['levantarse','вставать'],['vestirse','одеваться'],['desayunar','завтракать'],['merendar','полдничать'],['cenar','ужинать'],['acostarse','ложиться спать']]},
   {type:'choice',title:'Gusta или gustan?',instr:'Смотри, одна вещь или много.',items:[
    {q:'No me ___ los centros comerciales.',o:['gusta','gustan'],a:'gustan'},
@@ -651,10 +708,6 @@ const LESSONS=[
    {q:'Los horarios de las comidas de los españoles son ___.',o:['tempranos','tardíos'],a:'tardíos'},
    {q:'«Las tres de la tarde» es…',o:['15:00','03:00'],a:'15:00'},
    {q:'«La una de la tarde» es…',o:['13:00','01:00'],a:'13:00'}]},
-  {type:'type',title:'Комнаты в доме',instr:'Вставь salón, dormitorio или cocina, как в тексте «Voy a desayunar».',items:[
-   {q:'El narrador se despierta en su ___.',a:['dormitorio']},
-   {q:'Pasa por el ___.',a:['salón']},
-   {q:'Va a desayunar a la ___.',a:['cocina']}]},
   {type:'order',title:'Перетащи слова во фразу',instr:'Перетаскивай слова в строку в правильном порядке (или просто нажимай на них).',items:[
    {s:'¿Cómo sueles despertarte?',ru:'Как ты обычно просыпаешься?'},
    {s:'¿Sueles ver el atardecer?',ru:'Ты часто смотришь на закат?'},
@@ -811,7 +864,7 @@ function pickVoice(){try{
   document.getElementById('voicebar').hidden=!esVoices.length;
 }catch(e){}}
 let stopStory=null;
-function utt(t){const u=new SpeechSynthesisUtterance(t);u.lang=voice?voice.lang:'es-ES';if(voice)u.voice=voice;u.rate=.9;return u}
+function utt(t,rate){const u=new SpeechSynthesisUtterance(t);u.lang=voice?voice.lang:'es-ES';if(voice)u.voice=voice;u.rate=rate||.9;return u}
 function spk(t){return el('button',{class:'say inline',type:'button','aria-label':'Послушать: '+t,title:'Послушать',html:SPK,onclick:e=>{e.stopPropagation();say(t)}})}
 function say(t){try{if(stopStory)stopStory();speechSynthesis.cancel();speechSynthesis.speak(utt(t))}catch(e){}}
 document.getElementById('voice-sel').addEventListener('change',e=>{voice=esVoices.find(v=>v.name===e.target.value)||voice;try{localStorage.setItem('atitetoca-voice',voice.name)}catch(err){}say('Hola, me llamo Lucía y tengo once años.')});
@@ -994,6 +1047,10 @@ const EMO={
  'despertarse':'⏰','levantarse':'🛏️','lavarse la cara':'🧼','vestirse':'👕','desayunar':'🥣','almorzar':'🍝','merendar':'🧃','cenar':'🍽️','acostarse':'😴',
  'pasear':'🚶','ir de compras':'🛍️','temprano':'🌅','el atardecer':'🌇','la ciudad':'🏙️','el campo':'🌾','el centro comercial':'🏬','la cocina':'🍳',
  'el salón':'🛋️','el dormitorio':'🛏️','las redes sociales':'📲',
+ 'abrir los ojos':'👀','el ojo':'👁️','tener hambre':'🤤','la cama':'🛏️','salir de la cama':'🛏️','de un salto':'🦘','estirarse':'🙆','bostezar':'🥱','esperar':'⏳',
+ 'el vaso':'🥛','el cacao':'🍫','la magdalena':'🧁','en un plis plas':'⚡','la mochila':'🎒','el hombro':'💪','colgarse la mochila al hombro':'🎒','entrar':'🚪',
+ 'antes de':'⏮️','después de':'⏭️','cerrar':'🔒','la puerta':'🚪','con cuidado':'🤫','tomarse':'😋','de un bocado':'😮','beberse':'🥤','el colacao':'☕',
+ 'irse':'👋','sacar':'🫳','el bolígrafo':'🖊️','escribir':'✍️','detrás de':'🔙','la nota':'📝','los padres':'👨‍👩‍👧','comprar':'🛒','la pizza':'🍕','poder':'💪',
  'los churros':'🥖','el chocolate':'☕','la chocolatería':'🏪','la churrería':'🏪','el churrero':'👨‍🍳','la merienda':'🧁','el amanecer':'🌄','la leche':'🥛',
  'las galletas':'🍪','el pan con chocolate':'🍞','el yogur':'🥄','el plátano':'🍌','el zumo de naranja':'🧃','los cereales':'🥣','espeso':'🍯','caliente':'🔥',
  'dulce':'🍬','rico':'😋','amargo':'🍋','ligero':'🪶'
@@ -1248,31 +1305,68 @@ function phraseCard(t){
     el('button',{class:'btn ghost',type:'button',onclick:()=>list.querySelectorAll('li').forEach(x=>x.classList.remove('open'))},'Скрыть переводы')));
   return c;
 }
+/* text markup: {word|перевод} = новое слово, [word|перевод] = уже знакомое слово */
+const GLOSS=/\{([^|}]+)\|([^}]+)\}|\[([^|\]]+)\|([^\]]+)\]/g;
+const plainText=x=>x.replace(GLOSS,(m,a,b,c)=>a||c);
 function storyCard(t){
   const c=el('section',{class:'card story'},el('h3',{},'Текст '+(t._n||'')+': '+t.title));
-  const spans=[];
+  const spans=[],texts=[];
   const main=el('button',{class:'btn',type:'button'});
   const again=el('button',{class:'btn ghost',type:'button'},'С начала');
-  c.append(el('div',{class:'player'},main,again));
+  let slow=false;
+  const slowB=el('button',{class:'btn ghost',type:'button','aria-pressed':'false'},'🐢 Медленно');
+  slowB.addEventListener('click',()=>{slow=!slow;slowB.setAttribute('aria-pressed',String(slow))});
+  c.append(el('div',{class:'player'},main,again,slowB));
+  const glossed=t.paras.some(p=>GLOSS.test(p));GLOSS.lastIndex=0;
+  if(glossed)c.append(el('p',{class:'tip'},'Нажми на выделенное слово, и появится перевод. Синие слова новые. Двойной клик по предложению: читать с него.'));
+  /* popover with translation */
+  const pop=el('div',{class:'gpop',role:'status',hidden:''});let popFor=null;
+  const closePop=()=>{pop.hidden=true;if(popFor)popFor.classList.remove('open');popFor=null};
+  const openPop=(btn,es,ru)=>{
+    if(popFor===btn){closePop();return}
+    closePop();popFor=btn;btn.classList.add('open');
+    pop.innerHTML='';pop.append(el('span',{},el('span',{class:'es'},es),' — ',el('span',{class:'ru'},ru)),
+      el('button',{class:'say',type:'button','aria-label':'Послушать '+es,title:'Послушать',html:SPK,onclick:e=>{e.stopPropagation();say(es)}}));
+    pop.hidden=false;
+    const cr=c.getBoundingClientRect(),r=btn.getBoundingClientRect();
+    const w=pop.offsetWidth;
+    pop.style.left=Math.max(8,Math.min(r.left-cr.left,cr.width-w-8))+'px';
+    pop.style.top=(r.bottom-cr.top+6)+'px'};
+  c.addEventListener('click',e=>{if(!e.target.closest('.gw,.gpop'))closePop()});
+  c.addEventListener('keydown',e=>{if(e.key==='Escape')closePop()});
+  const build=(sp,x)=>{let last=0,m;GLOSS.lastIndex=0;
+    while((m=GLOSS.exec(x))){
+      if(m.index>last)sp.append(x.slice(last,m.index));
+      const es=m[1]||m[3],ru=m[2]||m[4];
+      const b=el('span',{class:'gw'+(m[1]?' new':''),role:'button',tabindex:'0','aria-label':es+': перевод'},es);
+      b.addEventListener('click',e=>{e.stopPropagation();openPop(b,es,ru)});
+      b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();openPop(b,es,ru)}});
+      sp.append(b);last=GLOSS.lastIndex}
+    if(last<x.length)sp.append(x.slice(last))};
   t.paras.forEach(p=>{const para=el('p');
-    (p.match(/[^.!?…]+[.!?…»]*\s*/g)||[p]).forEach(x=>{const sp=el('span',{class:'snt'},x);spans.push(sp);para.append(sp)});
+    (p.match(/[^.!?…]+[.!?…»]*\s*/g)||[p]).forEach(x=>{const sp=el('span',{class:'snt'});build(sp,x);spans.push(sp);texts.push(plainText(x).trim());para.append(sp)});
     c.append(para)});
+  c.append(pop);
   if(t.src)c.append(el('p',{class:'gloss'},t.src));
-  c.append(el('p',{class:'gloss'},t.gloss));
-  let idx=0,playing=false;
-  const mark=()=>spans.forEach((s,i)=>s.classList.toggle('cur',(playing||idx>0)&&i===idx));
-  const label=()=>{main.innerHTML=playing?STOP+'Стоп':PLAY+(idx>0?'Продолжить':'Слушать текст');mark()};
-  const stop=()=>{playing=false;if(stopStory===stop)stopStory=null;label()};
+  if(t.gloss)c.append(el('p',{class:'gloss'},t.gloss));
+  /* reading: sentence by sentence; pause remembers the word where it stopped */
+  let idx=0,off=0,playing=false,tok=0;
+  const mark=()=>spans.forEach((s,i)=>{s.classList.toggle('cur',(playing||idx>0||off>0)&&i===idx);s.classList.toggle('said',i<idx)});
+  const label=()=>{main.innerHTML=playing?STOP+'Пауза':PLAY+(idx>0||off>0?'Продолжить':'Слушать текст');mark()};
+  const stop=()=>{playing=false;tok++;if(stopStory===stop)stopStory=null;label()};
   const next=()=>{
     if(!playing)return;
-    if(idx>=spans.length){idx=0;stop();return}
-    mark();const u=utt(spans[idx].textContent.trim());
-    u.onend=()=>{if(!playing)return;idx++;next()};
+    if(idx>=spans.length){idx=0;off=0;stop();spans.forEach(s=>s.classList.remove('said'));return}
+    mark();const my=++tok;const from=off;
+    const u=utt(texts[idx].slice(from),slow?.65:.9);
+    u.onboundary=e=>{if(my===tok&&playing&&e.name!=='sentence'&&e.charIndex>=0)off=from+e.charIndex};
+    u.onend=()=>{if(my!==tok||!playing)return;idx++;off=0;next()};
+    u.onerror=u.onend;
     try{speechSynthesis.speak(u)}catch(e){stop()}};
-  const play=()=>{if(stopStory)stopStory();try{speechSynthesis.cancel()}catch(e){}playing=true;stopStory=stop;label();next()};
+  const play=()=>{if(stopStory)stopStory();try{speechSynthesis.cancel()}catch(e){}playing=true;stopStory=stop;label();setTimeout(next,60)};
   main.addEventListener('click',()=>{if(playing){stop();try{speechSynthesis.cancel()}catch(e){}}else play()});
-  again.addEventListener('click',()=>{idx=0;play()});
-  spans.forEach((sp,i)=>sp.addEventListener('dblclick',()=>{idx=i;play()}));
+  again.addEventListener('click',()=>{idx=0;off=0;play()});
+  spans.forEach((sp,i)=>sp.addEventListener('dblclick',()=>{idx=i;off=0;play()}));
   label();
   return c;
 }

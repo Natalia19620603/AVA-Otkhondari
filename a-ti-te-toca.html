@@ -135,6 +135,8 @@ input.blank.bad{border-color:var(--bad);background:var(--bad-soft);color:var(--b
 .gpop .es{font-weight:800}
 .gpop .ru{color:var(--muted);font-size:15px}
 .gpop .say{position:static;flex:none}
+.gpop .gx{border:none;background:none;color:var(--muted);font-size:18px;line-height:1;padding:4px 6px;flex:none}
+.gpop{cursor:pointer}
 .player .btn[aria-pressed="true"]{background:var(--sun-soft);border-color:var(--sun);color:var(--ink)}
 .story .tip{font-size:14px;color:var(--muted);margin:-4px 0 10px}
 .ru-q{flex:1 1 100%;font-weight:700}
@@ -1326,13 +1328,17 @@ function storyCard(t){
     if(popFor===btn){closePop();return}
     closePop();popFor=btn;btn.classList.add('open');
     pop.innerHTML='';pop.append(el('span',{},el('span',{class:'es'},es),' — ',el('span',{class:'ru'},ru)),
-      el('button',{class:'say',type:'button','aria-label':'Послушать '+es,title:'Послушать',html:SPK,onclick:e=>{e.stopPropagation();say(es)}}));
+      el('button',{class:'say',type:'button','aria-label':'Послушать '+es,title:'Послушать',html:SPK,onclick:e=>{e.stopPropagation();say(es)}}),
+      el('button',{class:'gx',type:'button','aria-label':'Закрыть',title:'Закрыть',onclick:e=>{e.stopPropagation();closePop()}},'✕'));
     pop.hidden=false;
     const cr=c.getBoundingClientRect(),r=btn.getBoundingClientRect();
     const w=pop.offsetWidth;
     pop.style.left=Math.max(8,Math.min(r.left-cr.left,cr.width-w-8))+'px';
     pop.style.top=(r.bottom-cr.top+6)+'px'};
-  c.addEventListener('click',e=>{if(!e.target.closest('.gw,.gpop'))closePop()});
+  pop.addEventListener('click',e=>{if(!e.target.closest('.say'))closePop()});
+  const outside=e=>{if(!c.isConnected){document.removeEventListener('pointerdown',outside,true);return}
+    if(popFor&&!e.target.closest('.gw,.gpop'))closePop()};
+  document.addEventListener('pointerdown',outside,true);
   c.addEventListener('keydown',e=>{if(e.key==='Escape')closePop()});
   const build=(sp,x)=>{let last=0,m;GLOSS.lastIndex=0;
     while((m=GLOSS.exec(x))){
